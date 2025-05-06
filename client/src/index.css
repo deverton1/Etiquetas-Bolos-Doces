@@ -96,19 +96,45 @@
       max-width: 80mm;
     }
     
-    .tamanho-76mm {
-      width: 76mm;
-      max-width: 76mm;
+    .tamanho-80mm-mini {
+      width: 80mm;
+      max-width: 80mm;
+      font-size: 90%;
+    }
+    
+    .tamanho-80mm-mini .tabela-nutricional {
+      font-size: 85%;
+    }
+    
+    .tamanho-80mm-mini .nome-bolo {
+      font-size: 110%;
     }
     
     .tamanho-58mm {
       width: 58mm;
       max-width: 58mm;
+      font-size: 80%;
     }
     
-    .tamanho-57mm {
-      width: 57mm;
-      max-width: 57mm;
+    .tamanho-58mm .tabela-nutricional {
+      font-size: 70%;
+    }
+    
+    .tamanho-58mm .tabela-nutricional th,
+    .tamanho-58mm .tabela-nutricional td {
+      padding: 1px 2px;
+    }
+    
+    /* Estilos específicos para impressão colorida vs P&B */
+    .impressao-pb .preview-etiqueta {
+      color: black !important;
+      border-color: black !important;
+    }
+    
+    .impressao-pb .preview-etiqueta * {
+      color: black !important;
+      border-color: black !important;
+      background-color: white !important;
     }
 
     /* Classes auxiliares */

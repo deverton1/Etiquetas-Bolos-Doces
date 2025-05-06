@@ -542,21 +542,23 @@ export default function FormEtiqueta({ etiqueta, onSubmit, onPrint, isSaving, hi
           {/* Botões de Ação */}
           <div className="flex flex-wrap justify-between gap-3 mt-6">
             {/* Botão de visualizar omitido, pois a visualização é em tempo real */}
-            <Button 
-              type="button" 
-              variant="secondary" 
-              className="flex-1 bg-primary hover:bg-primary/90 text-secondary" 
-              onClick={onPrint}
-            >
-              <Printer className="mr-2 h-4 w-4" /> Imprimir
-            </Button>
+            {!hideImprimir && (
+              <Button 
+                type="button" 
+                variant="secondary" 
+                className="flex-1 bg-primary hover:bg-primary/90 text-secondary" 
+                onClick={onPrint}
+              >
+                <Printer className="mr-2 h-4 w-4" /> Imprimir
+              </Button>
+            )}
             
             <Button 
               type="submit" 
-              className="flex-1 bg-secondary hover:bg-secondary/90 text-white"
+              className={`flex-1 bg-secondary hover:bg-secondary/90 text-white ${hideImprimir ? 'w-full' : ''}`}
               disabled={isSaving}
             >
-              <Save className="mr-2 h-4 w-4" /> Salvar
+              <Save className="mr-2 h-4 w-4" /> {isSaving ? 'Salvando...' : (etiqueta?.id ? 'Atualizar' : 'Salvar')}
             </Button>
             
             <Button 
