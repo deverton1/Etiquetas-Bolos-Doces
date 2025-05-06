@@ -70,8 +70,9 @@
   @media print {
     /* Configuração de página para impressão exata */
     @page {
-      size: content;
-      margin: 0mm;
+      size: auto;
+      margin: 0mm !important;
+      padding: 0mm !important;
     }
     
     /* Configuração básica para impressão */
@@ -171,7 +172,8 @@
     }
     
     /* Ajustes para controlar a altura da etiqueta impressa */
-    .preview-etiqueta {
+    .preview-etiqueta,
+    .impressao-etiqueta {
       height: auto !important;
       min-height: auto !important;
       max-height: none !important;
@@ -179,6 +181,17 @@
       page-break-after: always !important;
       break-inside: avoid !important;
       break-after: page !important;
+      border: none !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
+    
+    /* Estilo específico para a versão de impressão */
+    .impressao-etiqueta {
+      border: none !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      padding: 5mm !important;
     }
 
     /* Estilos específicos para impressão colorida vs P&B */
@@ -194,8 +207,12 @@
     }
 
     /* Classes auxiliares */
-    .no-print {
+    .no-print, 
+    .no-print-preview,
+    h2.titulo-preview,
+    .controles-preview {
       display: none !important;
+      visibility: hidden !important;
     }
     
     .print-only {

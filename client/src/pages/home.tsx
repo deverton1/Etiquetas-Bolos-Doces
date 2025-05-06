@@ -118,7 +118,10 @@ export default function Home() {
     
     // Criar um componente específico para impressão com a etiqueta selecionada
     const printEtiqueta = document.createElement('div');
-    printEtiqueta.className = `preview-etiqueta tamanho-${tamanhoImpressora} ${modoPB ? 'impressao-pb' : ''}`;
+    printEtiqueta.className = `impressao-etiqueta tamanho-${tamanhoImpressora} ${modoPB ? 'impressao-pb' : ''}`;
+    printEtiqueta.style.border = 'none';
+    printEtiqueta.style.borderRadius = '0';
+    printEtiqueta.style.boxShadow = 'none';
     
     // Criar conteúdo totalmente novo para a etiqueta (sem clonar o preview existente)
     const previewContent = document.createElement('div');
@@ -244,12 +247,19 @@ export default function Home() {
       printContainer.appendChild(printEtiqueta);
     
       // Aplicar estilos para impressão diretamente
+      printContainer.style.width = tamanhoImpressora === '58mm' ? '58mm' : '80mm';
+      printContainer.style.position = 'absolute';
+      printContainer.style.left = '0';
+      printContainer.style.top = '0';
+      printContainer.style.border = 'none';
+      
       printEtiqueta.style.display = 'block';
       printEtiqueta.style.visibility = 'visible';
       printEtiqueta.style.backgroundColor = 'white';
       printEtiqueta.style.color = 'black';
       printEtiqueta.style.padding = '0';
       printEtiqueta.style.margin = '0';
+      printEtiqueta.style.border = 'none';
       
       // Imprimir e depois remover o elemento
       setTimeout(() => {
@@ -296,10 +306,10 @@ export default function Home() {
               
               <div>
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold text-secondary border-b-2 border-primary pb-2">
+                  <h2 className="text-xl font-semibold text-secondary border-b-2 border-primary pb-2 titulo-preview no-print">
                     Visualização da Etiqueta
                   </h2>
-                  <div className="flex items-center gap-2 no-print">
+                  <div className="flex items-center gap-2 no-print controles-preview">
                     <ConfigsImpressao
                       onPrint={handlePrint}
                       tamanhoSelecionado={tamanhoImpressora}
