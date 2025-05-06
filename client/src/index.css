@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 45 100% 98%;
+    --foreground: 20 30% 20%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 20 30% 20%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 30% 20%;
+    
+    --primary: 40 100% 65%;
+    --primary-foreground: 20 30% 20%;
+    
+    --secondary: 20 30% 40%;
+    --secondary-foreground: 0 0% 100%;
+    
+    --muted: 40 30% 96%;
+    --muted-foreground: 20 15% 40%;
+    
+    --accent: 40 70% 85%;
+    --accent-foreground: 20 30% 20%;
+    
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 20 15% 90%;
+    --input: 20 15% 90%;
+    --ring: 40 100% 65%;
+
+    --sidebar-background: 20 30% 40%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 40 100% 65%;
+    --sidebar-primary-foreground: 20 30% 20%;
+    --sidebar-accent: 40 30% 96%;
+    --sidebar-accent-foreground: 20 30% 20%;
+    --sidebar-border: 20 15% 35%;
+    --sidebar-ring: 40 100% 65%;
+    
+    --chart-1: 20 30% 40%;
+    --chart-2: 40 100% 65%;
+    --chart-3: 40 70% 85%;
+    --chart-4: 20 15% 60%;
+    --chart-5: 40 30% 96%;
+    
+    --radius: 0.5rem;
+  }
+ 
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply font-sans antialiased bg-[#FFFDF5] text-foreground;
+  }
+
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+    
+    .print-only {
+      display: block !important;
+    }
+  }
+}
+
+@layer components {
+  .bg-pattern {
+    background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23f9d77e' fill-opacity='0.15' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E");
+  }
+}
