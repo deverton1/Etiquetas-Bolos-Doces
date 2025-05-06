@@ -49,8 +49,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Criar uma nova etiqueta
   app.post(`${apiPrefix}/etiquetas`, async (req, res) => {
     try {
-      // Validar os dados recebidos
-      const dadosValidados = etiquetaInsertSchema.parse(req.body);
+      // Validar os dados recebidos com coerção de tipos
+      const dadosValidados = etiquetaValidationSchema.parse(req.body);
       
       // Inserir no banco de dados
       const [novaEtiqueta] = await db.insert(etiquetas)
@@ -89,8 +89,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Etiqueta não encontrada" });
       }
       
-      // Validar os dados recebidos
-      const dadosValidados = etiquetaInsertSchema.parse(req.body);
+      // Validar os dados recebidos com coerção de tipos
+      const dadosValidados = etiquetaValidationSchema.parse(req.body);
       
       // Atualizar no banco de dados
       const [etiquetaAtualizada] = await db.update(etiquetas)
