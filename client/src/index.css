@@ -73,15 +73,36 @@
       size: auto;
       margin: 0mm !important;
       padding: 0mm !important;
+      orphans: 0 !important;
+      widows: 0 !important;
+    }
+    
+    @page :first {
+      margin: 0mm !important;
+      padding: 0mm !important;
     }
     
     /* Configuração básica para impressão */
-    body {
+    html, body {
       background-color: white !important;
       margin: 0 !important;
       padding: 0 !important;
       height: auto !important;
       width: auto !important;
+      min-height: 0 !important;
+      max-height: none !important;
+      overflow: visible !important;
+    }
+    
+    /* Esconder totalmente o conteúdo normal do site */
+    body > *:not(#etiquetaPrintContainer) {
+      display: none !important;
+      visibility: hidden !important;
+      height: 0 !important;
+      width: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: none !important;
     }
     
     /* Ocultar elementos que não devem ser impressos */

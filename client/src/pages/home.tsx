@@ -111,12 +111,18 @@ export default function Home() {
       return;
     }
     
+    // Remover qualquer contêiner de impressão anterior que possa existir
+    const oldPrintContainer = document.getElementById('etiquetaPrintContainer');
+    if (oldPrintContainer) {
+      document.body.removeChild(oldPrintContainer);
+    }
+    
     // Criar um elemento para impressão
     const printContainer = document.createElement('div');
     printContainer.className = 'etiqueta-print-container';
-    document.body.appendChild(printContainer);
+    printContainer.id = 'etiquetaPrintContainer';
     
-    // Criar um componente específico para impressão com a etiqueta selecionada
+    // Criar um componente específico para impressão
     const printEtiqueta = document.createElement('div');
     printEtiqueta.className = `impressao-etiqueta tamanho-${tamanhoImpressora} ${modoPB ? 'impressao-pb' : ''}`;
     printEtiqueta.style.border = 'none';
@@ -245,29 +251,54 @@ export default function Home() {
     if (previewContent) {
       printEtiqueta.appendChild(previewContent);
       printContainer.appendChild(printEtiqueta);
+      document.body.appendChild(printContainer);
     
-      // Aplicar estilos para impressão diretamente
+      // Aplicar estilos para impressão diretamente - Ajuste específico para evitar quadrado branco
       printContainer.style.width = tamanhoImpressora === '58mm' ? '58mm' : '80mm';
-      printContainer.style.position = 'absolute';
+      printContainer.style.position = 'fixed';
       printContainer.style.left = '0';
       printContainer.style.top = '0';
       printContainer.style.border = 'none';
+      printContainer.style.margin = '0';
+      printContainer.style.padding = '0';
+      printContainer.style.overflow = 'hidden';
+      printContainer.style.zIndex = '999999';
       
       printEtiqueta.style.display = 'block';
       printEtiqueta.style.visibility = 'visible';
       printEtiqueta.style.backgroundColor = 'white';
       printEtiqueta.style.color = 'black';
-      printEtiqueta.style.padding = '0';
+      printEtiqueta.style.padding = '5mm';
       printEtiqueta.style.margin = '0';
       printEtiqueta.style.border = 'none';
+      printEtiqueta.style.pageBreakAfter = 'avoid';
+      printEtiqueta.style.pageBreakInside = 'avoid';
       
-      // Imprimir e depois remover o elemento
+      // Adicionar evento de impressão para remover o elemento após a impressão
+      const afterPrint = () => {
+        if (document.body.contains(printContainer)) {
+          document.body.removeChild(printContainer);
+        }
+        window.removeEventListener('afterprint', afterPrint);
+      };
+      
+      window.addEventListener('afterprint', afterPrint);
+      
+      // Adicionar o elemento ao corpo do documento
+      document.body.appendChild(printContainer);
+      
+      // Forçar um reflow antes de imprimir
+      document.body.offsetHeight;
+      
+      // Imprimir o documento
       setTimeout(() => {
         window.print();
         
-        // Remover o elemento após a impressão
+        // Backup para navegadores que não suportam o evento afterprint
         setTimeout(() => {
-          document.body.removeChild(printContainer);
+          if (document.body.contains(printContainer)) {
+            document.body.removeChild(printContainer);
+          }
         }, 1000);
       }, 200);
     }
