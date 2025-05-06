@@ -186,7 +186,13 @@ export default function FormEtiqueta({ etiqueta, onSubmit, onPrint, isSaving, hi
   const onFormSubmit = (data: z.infer<typeof formSchema>) => {
     // Garantir que os nutrientes adicionais sejam incluídos
     data.nutrientesAdicionais = nutrientesAdicionais;
-    onSubmit(data as Etiqueta);
+    // Converter para o formato esperado pelo backend
+    const etiquetaData = {
+      ...data,
+      id: data.id || undefined,
+      dataCriacao: etiqueta?.dataCriacao || new Date()
+    };
+    onSubmit(etiquetaData as unknown as Etiqueta);
   };
   
   return (

@@ -20,21 +20,23 @@ export default function PreviewEtiqueta({
 }: PreviewEtiquetaProps) {
   const previewRef = useRef<HTMLDivElement>(null);
   const [defaultValues] = useState<Etiqueta>({
+    id: 0,
     nome: "Nome do Bolo",
     descricao: "Detalhes do sabor do bolo aparecerão aqui",
     dataFabricacao: new Date().toISOString().split('T')[0],
     dataValidade: new Date(new Date().setDate(new Date().getDate() + 5)).toISOString().split('T')[0],
-    porcao: 100,
+    porcao: "100",
     unidadePorcao: "g",
-    valorEnergetico: 250,
+    valorEnergetico: "250",
     unidadeEnergetico: "kcal",
-    carboidratos: 35,
-    acucares: 22,
-    proteinas: 4,
-    gordurasTotais: 12,
-    gordurasSaturadas: 6,
-    sodio: 120,
-    fibras: 1.5,
+    carboidratos: "35",
+    acucares: "22",
+    proteinas: "4",
+    gordurasTotais: "12",
+    gordurasSaturadas: "6",
+    sodio: "120",
+    fibras: "1.5",
+    dataCriacao: new Date(),
     nutrientesAdicionais: [] as NutrienteAdicional[]
   });
   
@@ -58,7 +60,7 @@ export default function PreviewEtiqueta({
     <div 
       ref={previewRef}
       id="etiquetaPreview" 
-      className={`etiqueta-preview border-2 border-secondary rounded-md p-4 bg-white min-h-[500px] shadow-md transition-transform ${impressaoClasses}`}
+      className={`preview-etiqueta nome-bolo border-2 border-secondary rounded-md p-4 bg-white min-h-[500px] shadow-md transition-transform ${impressaoClasses}`}
     >
       {/* Cabeçalho */}
       <div className="text-center mb-4 pb-2 border-b border-primary/50">
@@ -146,13 +148,13 @@ export default function PreviewEtiqueta({
                   <td className="text-right py-1 pl-1">{calcularVD('sodio', display.sodio)}%</td>
                 </tr>
                 {/* Nutrientes Adicionais */}
-                {display.nutrientesAdicionais && display.nutrientesAdicionais.map((nutriente: NutrienteAdicional, index) => (
+                {display.nutrientesAdicionais && Array.isArray(display.nutrientesAdicionais) && display.nutrientesAdicionais.map((nutriente: any, index: number) => (
                   <tr key={index} className="border-b border-gray-200">
                     <td className="py-1 text-secondary/80">
-                      {nutriente.nome}
+                      {nutriente?.nome || ''}
                     </td>
                     <td className="text-right py-1">
-                      {nutriente.valor}{nutriente.unidade}
+                      {nutriente?.valor || 0}{nutriente?.unidade || 'g'}
                     </td>
                     <td className="text-right py-1 pl-1">-</td>
                   </tr>

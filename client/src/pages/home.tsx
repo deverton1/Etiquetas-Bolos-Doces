@@ -24,9 +24,12 @@ export default function Home() {
   const { toast } = useToast();
 
   // Buscar todas as etiquetas salvas
-  const { data: etiquetas = [], isLoading } = useQuery({
+  const { data: etiquetasData = [], isLoading } = useQuery({
     queryKey: ['/api/etiquetas'],
   });
+  
+  // Converter para o tipo correto
+  const etiquetas = etiquetasData as Etiqueta[];
 
   // Mutação para salvar uma etiqueta
   const { mutate: salvarEtiqueta, isPending: isSaving } = useMutation({
