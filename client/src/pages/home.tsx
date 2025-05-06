@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { type Etiqueta } from "@shared/schema";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { formatarDataBR } from "@/lib/utils/dates";
+import { formatarDataBR, getDataAtual, calcularDataValidade } from "@/lib/utils/dates";
 import { calcularVD } from "@/lib/utils/nutritionCalc";
 
 export default function Home() {
@@ -94,7 +94,18 @@ export default function Home() {
   };
 
   const handleEtiquetaEdit = (etiqueta: Etiqueta) => {
-    setEtiquetaAtual(etiqueta);
+    // Atualizar a data de fabricação para o dia atual
+    const dataAtual = getDataAtual();
+    const dataValidade = calcularDataValidade(dataAtual, 5);
+    
+    // Criar uma cópia da etiqueta com a data de fabricação atualizada
+    const etiquetaAtualizada = {
+      ...etiqueta,
+      dataFabricacao: dataAtual,
+      dataValidade: dataValidade
+    };
+    
+    setEtiquetaAtual(etiquetaAtualizada);
   };
 
   const handleEtiquetaDelete = (id: number) => {
