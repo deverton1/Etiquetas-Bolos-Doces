@@ -59,6 +59,59 @@
   }
 
   @media print {
+    /* Reset todas as margens para não ter cabeçalho e rodapé */
+    @page {
+      size: auto;
+      margin: 0mm;
+    }
+    
+    /* Ocultar todos os elementos, exceto a etiqueta */
+    body * {
+      visibility: hidden;
+    }
+    
+    /* Tornar apenas a etiqueta visível */
+    .etiqueta-print-container * {
+      visibility: visible;
+    }
+    
+    .etiqueta-print-container {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      padding: 0;
+      margin: 0;
+    }
+    
+    /* Estilos para impressão em preto e branco */
+    .impressao-pb {
+      -webkit-filter: grayscale(100%);
+      filter: grayscale(100%);
+    }
+    
+    /* Ajustar tamanhos específicos para impressoras térmicas */
+    .tamanho-80mm {
+      width: 80mm;
+      max-width: 80mm;
+    }
+    
+    .tamanho-76mm {
+      width: 76mm;
+      max-width: 76mm;
+    }
+    
+    .tamanho-58mm {
+      width: 58mm;
+      max-width: 58mm;
+    }
+    
+    .tamanho-57mm {
+      width: 57mm;
+      max-width: 57mm;
+    }
+
+    /* Classes auxiliares */
     .no-print {
       display: none !important;
     }

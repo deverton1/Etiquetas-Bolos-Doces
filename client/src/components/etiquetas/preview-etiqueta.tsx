@@ -1,16 +1,25 @@
 import { useRef, useEffect, useState } from "react";
-import { type Etiqueta } from "@shared/schema";
+import { type Etiqueta, type NutrienteAdicional } from "@shared/schema";
 import { formatarDataBR } from "@/lib/utils/dates";
 import { calcularVD } from "@/lib/utils/nutritionCalc";
 
 interface PreviewEtiquetaProps {
   etiqueta: Etiqueta | null;
   tamanho: 'P' | 'M';
+  tamanhoImpressora?: string;
+  modoPB?: boolean;
+  isPreviewImpressao?: boolean;
 }
 
-export default function PreviewEtiqueta({ etiqueta, tamanho }: PreviewEtiquetaProps) {
+export default function PreviewEtiqueta({ 
+  etiqueta, 
+  tamanho, 
+  tamanhoImpressora = "80mm", 
+  modoPB = false,
+  isPreviewImpressao = false
+}: PreviewEtiquetaProps) {
   const previewRef = useRef<HTMLDivElement>(null);
-  const [defaultValues, setDefaultValues] = useState<Etiqueta>({
+  const [defaultValues] = useState<Etiqueta>({
     nome: "Nome do Bolo",
     descricao: "Detalhes do sabor do bolo aparecerão aqui",
     dataFabricacao: new Date().toISOString().split('T')[0],
@@ -26,7 +35,7 @@ export default function PreviewEtiqueta({ etiqueta, tamanho }: PreviewEtiquetaPr
     gordurasSaturadas: 6,
     sodio: 120,
     fibras: 1.5,
-    nutrientesAdicionais: []
+    nutrientesAdicionais: [] as NutrienteAdicional[]
   });
   
   // Aplicar escala com base no tamanho
@@ -40,11 +49,16 @@ export default function PreviewEtiqueta({ etiqueta, tamanho }: PreviewEtiquetaPr
   // Valores a serem exibidos (etiqueta atual ou valores padrão)
   const display = etiqueta || defaultValues;
   
+  // Classes para impressão
+  const impressaoClasses = isPreviewImpressao 
+    ? `etiqueta-print-container tamanho-${tamanhoImpressora} ${modoPB ? 'impressao-pb' : ''}`
+    : "";
+  
   return (
     <div 
       ref={previewRef}
       id="etiquetaPreview" 
-      className="etiqueta-preview border-2 border-secondary rounded-md p-4 bg-white min-h-[500px] shadow-md transition-transform"
+      className={`etiqueta-preview border-2 border-secondary rounded-md p-4 bg-white min-h-[500px] shadow-md transition-transform ${impressaoClasses}`}
     >
       {/* Cabeçalho */}
       <div className="text-center mb-4 pb-2 border-b border-primary/50">
@@ -132,7 +146,7 @@ export default function PreviewEtiqueta({ etiqueta, tamanho }: PreviewEtiquetaPr
                   <td className="text-right py-1 pl-1">{calcularVD('sodio', display.sodio)}%</td>
                 </tr>
                 {/* Nutrientes Adicionais */}
-                {display.nutrientesAdicionais && display.nutrientesAdicionais.map((nutriente, index) => (
+                {display.nutrientesAdicionais && display.nutrientesAdicionais.map((nutriente: NutrienteAdicional, index) => (
                   <tr key={index} className="border-b border-gray-200">
                     <td className="py-1 text-secondary/80">
                       {nutriente.nome}
