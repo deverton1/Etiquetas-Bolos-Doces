@@ -11,16 +11,20 @@ interface ConfigsImpressaoProps {
   onPrint: () => void;
   tamanhoSelecionado: string;
   modoPB: boolean;
+  mostrarTabela: boolean;
   onChangeTamanho: (tamanho: string) => void;
   onChangeModoPB: (modo: boolean) => void;
+  onChangeMostrarTabela: (mostrar: boolean) => void;
 }
 
 export default function ConfigsImpressao({
   onPrint,
   tamanhoSelecionado,
   modoPB,
+  mostrarTabela,
   onChangeTamanho,
-  onChangeModoPB
+  onChangeModoPB,
+  onChangeMostrarTabela
 }: ConfigsImpressaoProps) {
   return (
     <div className="flex items-center gap-2">
@@ -49,6 +53,20 @@ export default function ConfigsImpressao({
                   id="pb-mode"
                   checked={modoPB}
                   onCheckedChange={onChangeModoPB}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1">
+                  <Label htmlFor="mostrar-tabela">Imprimir Tabela Nutricional</Label>
+                  <TooltipHelper text="Desative para imprimir etiquetas sem a tabela nutricional" />
+                </div>
+                <Switch
+                  id="mostrar-tabela"
+                  checked={mostrarTabela}
+                  onCheckedChange={onChangeMostrarTabela}
                 />
               </div>
             </div>

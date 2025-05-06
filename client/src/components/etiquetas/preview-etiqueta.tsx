@@ -8,6 +8,7 @@ interface PreviewEtiquetaProps {
   tamanho: 'P' | 'M';
   tamanhoImpressora?: string;
   modoPB?: boolean;
+  mostrarTabela?: boolean;
   isPreviewImpressao?: boolean;
 }
 
@@ -16,6 +17,7 @@ export default function PreviewEtiqueta({
   tamanho, 
   tamanhoImpressora = "80mm", 
   modoPB = false,
+  mostrarTabela = true,
   isPreviewImpressao = false
 }: PreviewEtiquetaProps) {
   const previewRef = useRef<HTMLDivElement>(null);
@@ -89,84 +91,86 @@ export default function PreviewEtiqueta({
         </div>
         
         {/* Tabela Nutricional */}
-        <div className="border border-secondary/30 rounded-md overflow-hidden">
-          <div className="bg-primary text-secondary font-bold text-center py-1">
-            INFORMAÇÃO NUTRICIONAL
-          </div>
-          <div className="p-2 text-sm">
-            <p className="mb-1 text-xs">
-              Porção de {display.porcao}{display.unidadePorcao} (1 fatia)
-            </p>
-            
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="border-b border-secondary/30">
-                  <th className="text-left py-1 pr-1 text-secondary">Nutrientes</th>
-                  <th className="text-right py-1 text-secondary">Quantidade</th>
-                  <th className="text-right py-1 pl-1 text-secondary">VD%*</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-b border-gray-200">
-                  <td className="py-1 text-secondary/80">Valor Energético</td>
-                  <td className="text-right py-1">{display.valorEnergetico} {display.unidadeEnergetico}</td>
-                  <td className="text-right py-1 pl-1">{calcularVD('energetico', display.valorEnergetico)}%</td>
-                </tr>
-                <tr className="border-b border-gray-200">
-                  <td className="py-1 text-secondary/80">Carboidratos</td>
-                  <td className="text-right py-1">{display.carboidratos}g</td>
-                  <td className="text-right py-1 pl-1">{calcularVD('carboidratos', display.carboidratos)}%</td>
-                </tr>
-                <tr className="border-b border-gray-200">
-                  <td className="py-1 text-secondary/80 pl-2">Açúcares</td>
-                  <td className="text-right py-1">{display.acucares}g</td>
-                  <td className="text-right py-1 pl-1">-</td>
-                </tr>
-                <tr className="border-b border-gray-200">
-                  <td className="py-1 text-secondary/80">Proteínas</td>
-                  <td className="text-right py-1">{display.proteinas}g</td>
-                  <td className="text-right py-1 pl-1">{calcularVD('proteinas', display.proteinas)}%</td>
-                </tr>
-                <tr className="border-b border-gray-200">
-                  <td className="py-1 text-secondary/80">Gorduras Totais</td>
-                  <td className="text-right py-1">{display.gordurasTotais}g</td>
-                  <td className="text-right py-1 pl-1">{calcularVD('gorduras', display.gordurasTotais)}%</td>
-                </tr>
-                <tr className="border-b border-gray-200">
-                  <td className="py-1 text-secondary/80 pl-2">Gorduras Saturadas</td>
-                  <td className="text-right py-1">{display.gordurasSaturadas}g</td>
-                  <td className="text-right py-1 pl-1">{calcularVD('gordurasSaturadas', display.gordurasSaturadas)}%</td>
-                </tr>
-                <tr className="border-b border-gray-200">
-                  <td className="py-1 text-secondary/80">Fibras</td>
-                  <td className="text-right py-1">{display.fibras}g</td>
-                  <td className="text-right py-1 pl-1">{calcularVD('fibras', display.fibras)}%</td>
-                </tr>
-                <tr>
-                  <td className="py-1 text-secondary/80">Sódio</td>
-                  <td className="text-right py-1">{display.sodio}mg</td>
-                  <td className="text-right py-1 pl-1">{calcularVD('sodio', display.sodio)}%</td>
-                </tr>
-                {/* Nutrientes Adicionais */}
-                {display.nutrientesAdicionais && Array.isArray(display.nutrientesAdicionais) && display.nutrientesAdicionais.map((nutriente: any, index: number) => (
-                  <tr key={index} className="border-b border-gray-200">
-                    <td className="py-1 text-secondary/80">
-                      {nutriente?.nome || ''}
-                    </td>
-                    <td className="text-right py-1">
-                      {nutriente?.valor || 0}{nutriente?.unidade || 'g'}
-                    </td>
+        {mostrarTabela && (
+          <div className="border border-secondary/30 rounded-md overflow-hidden">
+            <div className="bg-primary text-secondary font-bold text-center py-1">
+              INFORMAÇÃO NUTRICIONAL
+            </div>
+            <div className="p-2 text-sm">
+              <p className="mb-1 text-xs">
+                Porção de {display.porcao}{display.unidadePorcao} (1 fatia)
+              </p>
+              
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b border-secondary/30">
+                    <th className="text-left py-1 pr-1 text-secondary">Nutrientes</th>
+                    <th className="text-right py-1 text-secondary">Quantidade</th>
+                    <th className="text-right py-1 pl-1 text-secondary">VD%*</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-1 text-secondary/80">Valor Energético</td>
+                    <td className="text-right py-1">{display.valorEnergetico} {display.unidadeEnergetico}</td>
+                    <td className="text-right py-1 pl-1">{calcularVD('energetico', display.valorEnergetico)}%</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-1 text-secondary/80">Carboidratos</td>
+                    <td className="text-right py-1">{display.carboidratos}g</td>
+                    <td className="text-right py-1 pl-1">{calcularVD('carboidratos', display.carboidratos)}%</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-1 text-secondary/80 pl-2">Açúcares</td>
+                    <td className="text-right py-1">{display.acucares}g</td>
                     <td className="text-right py-1 pl-1">-</td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-            
-            <p className="mt-2 text-xs text-secondary/80">
-              *Valores Diários de referência com base em uma dieta de 2.000 kcal.
-            </p>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-1 text-secondary/80">Proteínas</td>
+                    <td className="text-right py-1">{display.proteinas}g</td>
+                    <td className="text-right py-1 pl-1">{calcularVD('proteinas', display.proteinas)}%</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-1 text-secondary/80">Gorduras Totais</td>
+                    <td className="text-right py-1">{display.gordurasTotais}g</td>
+                    <td className="text-right py-1 pl-1">{calcularVD('gorduras', display.gordurasTotais)}%</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-1 text-secondary/80 pl-2">Gorduras Saturadas</td>
+                    <td className="text-right py-1">{display.gordurasSaturadas}g</td>
+                    <td className="text-right py-1 pl-1">{calcularVD('gordurasSaturadas', display.gordurasSaturadas)}%</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="py-1 text-secondary/80">Fibras</td>
+                    <td className="text-right py-1">{display.fibras}g</td>
+                    <td className="text-right py-1 pl-1">{calcularVD('fibras', display.fibras)}%</td>
+                  </tr>
+                  <tr>
+                    <td className="py-1 text-secondary/80">Sódio</td>
+                    <td className="text-right py-1">{display.sodio}mg</td>
+                    <td className="text-right py-1 pl-1">{calcularVD('sodio', display.sodio)}%</td>
+                  </tr>
+                  {/* Nutrientes Adicionais */}
+                  {display.nutrientesAdicionais && Array.isArray(display.nutrientesAdicionais) && display.nutrientesAdicionais.map((nutriente: any, index: number) => (
+                    <tr key={index} className="border-b border-gray-200">
+                      <td className="py-1 text-secondary/80">
+                        {nutriente?.nome || ''}
+                      </td>
+                      <td className="text-right py-1">
+                        {nutriente?.valor || 0}{nutriente?.unidade || 'g'}
+                      </td>
+                      <td className="text-right py-1 pl-1">-</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              
+              <p className="mt-2 text-xs text-secondary/80">
+                *Valores Diários de referência com base em uma dieta de 2.000 kcal.
+              </p>
+            </div>
           </div>
-        </div>
+        )}
         
         {/* Rodapé da Etiqueta */}
         <div className="mt-3 text-xs text-center text-secondary/80">
