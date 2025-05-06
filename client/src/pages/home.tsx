@@ -20,6 +20,7 @@ export default function Home() {
   const [tamanhoPreview, setTamanhoPreview] = useState<'M' | 'P'>('M');
   const [tamanhoImpressora, setTamanhoImpressora] = useState<string>("80mm");
   const [modoPB, setModoPB] = useState<boolean>(false);
+  const [mostrarTabela, setMostrarTabela] = useState<boolean>(true);
   const etiquetaPreviewRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -136,6 +137,10 @@ export default function Home() {
   const handleChangeModoPB = (modo: boolean) => {
     setModoPB(modo);
   };
+  
+  const handleChangeMostrarTabela = (mostrar: boolean) => {
+    setMostrarTabela(mostrar);
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -166,8 +171,10 @@ export default function Home() {
                       onPrint={handlePrint}
                       tamanhoSelecionado={tamanhoImpressora}
                       modoPB={modoPB}
+                      mostrarTabela={mostrarTabela}
                       onChangeTamanho={handleChangeTamanhoImpressora}
                       onChangeModoPB={handleChangeModoPB}
+                      onChangeMostrarTabela={handleChangeMostrarTabela}
                     />
                     <div>
                       <Button 
@@ -194,6 +201,7 @@ export default function Home() {
                     tamanho={tamanhoPreview}
                     tamanhoImpressora={tamanhoImpressora}
                     modoPB={modoPB}
+                    mostrarTabela={mostrarTabela}
                   />
                 </div>
               </div>
