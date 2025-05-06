@@ -216,15 +216,25 @@
     }
 
     /* Estilos específicos para impressão colorida vs P&B */
-    .impressao-pb .preview-etiqueta {
+    .impressao-pb {
       color: black !important;
       border-color: black !important;
+      -webkit-filter: grayscale(100%) contrast(120%) !important;
+      filter: grayscale(100%) contrast(120%) !important;
     }
     
-    .impressao-pb .preview-etiqueta * {
+    .impressao-pb * {
       color: black !important;
       border-color: black !important;
       background-color: white !important;
+      font-weight: 500 !important;
+    }
+    
+    .impressao-pb h3,
+    .impressao-pb th,
+    .impressao-pb .font-bold,
+    .impressao-pb .font-semibold {
+      font-weight: 700 !important;
     }
 
     /* Classes auxiliares */
