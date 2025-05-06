@@ -65,23 +65,33 @@
       margin: 0mm;
     }
     
-    /* Ocultar todos os elementos, exceto a etiqueta */
-    body * {
-      visibility: hidden;
+    /* Configuração básica para impressão */
+    body {
+      background-color: white !important;
     }
     
-    /* Tornar apenas a etiqueta visível */
-    .etiqueta-print-container * {
-      visibility: visible;
+    /* Ocultar elementos que não devem ser impressos */
+    .no-print {
+      display: none !important;
     }
     
+    /* Tornar a etiqueta visível e formatada para impressão */
     .etiqueta-print-container {
+      display: block !important;
+      visibility: visible !important;
       position: absolute;
       left: 0;
       top: 0;
       width: 100%;
       padding: 0;
       margin: 0;
+      background-color: white !important;
+      color: black !important;
+    }
+    
+    .etiqueta-print-container * {
+      visibility: visible !important;
+      display: block;
     }
     
     /* Estilos para impressão em preto e branco */

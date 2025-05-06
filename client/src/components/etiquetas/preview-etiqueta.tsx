@@ -170,9 +170,9 @@ export default function PreviewEtiqueta({
         
         {/* Rodapé da Etiqueta */}
         <div className="mt-3 text-xs text-center text-secondary/80">
-          <p>DOCES MARA - CNPJ: 00.000.000/0001-00</p>
-          <p>Rua das Delícias, 123 - Cidade Doce - CEP: 00000-000</p>
-          <p>Tel: (00) 00000-0000 - contato@docesmara.com.br</p>
+          <p>DOCES MARA</p>
+          <p>Rua Francisco Marengo 1735 - São Paulo - CEP 03313000</p>
+          <p>Tel: (11) 9 7083-6151 / (11) 9 8148-2372 - @docesmaratatuape</p>
         </div>
       </div>
     </div>

@@ -99,26 +99,34 @@ export default function Home() {
   };
 
   const handlePrint = () => {
-    // Criar um elemento invisível para impressão que será removido após a impressão
+    // Criar um elemento para impressão
     const printContainer = document.createElement('div');
     printContainer.className = 'etiqueta-print-container';
-    printContainer.style.position = 'fixed';
-    printContainer.style.left = '-9999px';
     document.body.appendChild(printContainer);
     
     // Criar um clone da etiqueta para impressão com as configurações corretas
     const printEtiqueta = document.createElement('div');
     printEtiqueta.innerHTML = etiquetaPreviewRef.current?.innerHTML || '';
-    printEtiqueta.className = `tamanho-${tamanhoImpressora} ${modoPB ? 'impressao-pb' : ''}`;
+    printEtiqueta.className = `preview-etiqueta tamanho-${tamanhoImpressora} ${modoPB ? 'impressao-pb' : ''}`;
     printContainer.appendChild(printEtiqueta);
     
-    // Imprimir e depois remover o elemento temporário
-    window.print();
+    // Aplicar estilos para impressão diretamente
+    printEtiqueta.style.display = 'block';
+    printEtiqueta.style.visibility = 'visible';
+    printEtiqueta.style.backgroundColor = 'white';
+    printEtiqueta.style.color = 'black';
+    printEtiqueta.style.padding = '10px';
+    printEtiqueta.style.margin = '0 auto';
     
-    // Aguardar um tempo antes de remover para garantir que a impressão seja concluída
+    // Imprimir e depois remover o elemento
     setTimeout(() => {
-      document.body.removeChild(printContainer);
-    }, 1000);
+      window.print();
+      
+      // Remover o elemento após a impressão
+      setTimeout(() => {
+        document.body.removeChild(printContainer);
+      }, 1000);
+    }, 200);
   };
   
   const handleChangeTamanhoImpressora = (tamanho: string) => {
@@ -136,10 +144,6 @@ export default function Home() {
       <main className="container mx-auto px-4 py-6 flex-grow">
         <Card className="bg-white rounded-lg shadow-md mb-6">
           <CardContent className="p-4">
-            <p className="text-secondary mb-4 italic">
-              Crie etiquetas personalizadas para seus deliciosos bolos com informações completas e tabelas nutricionais. 
-              Preencha os dados, visualize e imprima!
-            </p>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="no-print">
