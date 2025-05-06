@@ -190,7 +190,7 @@ export default function FormEtiqueta({ etiqueta, onSubmit, onPrint, isSaving, hi
     const etiquetaData = {
       ...data,
       id: data.id || undefined,
-      dataCriacao: etiqueta?.dataCriacao || new Date()
+      // Remover referência à dataCriacao, o servidor vai definir isso
     };
     onSubmit(etiquetaData as unknown as Etiqueta);
   };

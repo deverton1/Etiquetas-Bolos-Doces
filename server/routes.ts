@@ -52,9 +52,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validar os dados recebidos com coerção de tipos
       const dadosValidados = etiquetaValidationSchema.parse(req.body);
       
+      // Remover o campo dataCriacao se presente, pois o banco de dados vai definir automaticamente
+      const { dataCriacao, ...dadosParaInserir } = dadosValidados;
+      
       // Inserir no banco de dados
       const [novaEtiqueta] = await db.insert(etiquetas)
-        .values(dadosValidados)
+        .values(dadosParaInserir)
         .returning();
       
       return res.status(201).json(novaEtiqueta);
@@ -92,9 +95,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validar os dados recebidos com coerção de tipos
       const dadosValidados = etiquetaValidationSchema.parse(req.body);
       
+      // Remover o campo dataCriacao se presente, para não sobrescrever a data de criação original
+      const { dataCriacao, ...dadosParaAtualizar } = dadosValidados;
+      
       // Atualizar no banco de dados
       const [etiquetaAtualizada] = await db.update(etiquetas)
-        .set(dadosValidados)
+        .set(dadosParaAtualizar)
         .where(eq(etiquetas.id, id))
         .returning();
       
