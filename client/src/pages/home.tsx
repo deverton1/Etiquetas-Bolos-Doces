@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import FormEtiqueta from "@/components/etiquetas/form-etiqueta";
 import PreviewEtiqueta from "@/components/etiquetas/preview-etiqueta";
 import ListaEtiquetas from "@/components/etiquetas/lista-etiquetas";
+import ConfigsImpressao from "@/components/etiquetas/configs-impressao";
 import { Card, CardContent } from "@/components/ui/card";
 import Documentacao from "@/components/ui/documentacao";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,9 @@ export default function Home() {
   const [showDocs, setShowDocs] = useState(false);
   const [etiquetaAtual, setEtiquetaAtual] = useState<Etiqueta | null>(null);
   const [tamanhoPreview, setTamanhoPreview] = useState<'M' | 'P'>('M');
+  const [tamanhoImpressora, setTamanhoImpressora] = useState<string>("80mm");
+  const [modoPB, setModoPB] = useState<boolean>(false);
+  const etiquetaPreviewRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   // Buscar todas as etiquetas salvas
@@ -92,7 +96,34 @@ export default function Home() {
   };
 
   const handlePrint = () => {
+    // Criar um elemento invisível para impressão que será removido após a impressão
+    const printContainer = document.createElement('div');
+    printContainer.className = 'etiqueta-print-container';
+    printContainer.style.position = 'fixed';
+    printContainer.style.left = '-9999px';
+    document.body.appendChild(printContainer);
+    
+    // Criar um clone da etiqueta para impressão com as configurações corretas
+    const printEtiqueta = document.createElement('div');
+    printEtiqueta.innerHTML = etiquetaPreviewRef.current?.innerHTML || '';
+    printEtiqueta.className = `tamanho-${tamanhoImpressora} ${modoPB ? 'impressao-pb' : ''}`;
+    printContainer.appendChild(printEtiqueta);
+    
+    // Imprimir e depois remover o elemento temporário
     window.print();
+    
+    // Aguardar um tempo antes de remover para garantir que a impressão seja concluída
+    setTimeout(() => {
+      document.body.removeChild(printContainer);
+    }, 1000);
+  };
+  
+  const handleChangeTamanhoImpressora = (tamanho: string) => {
+    setTamanhoImpressora(tamanho);
+  };
+  
+  const handleChangeModoPB = (modo: boolean) => {
+    setModoPB(modo);
   };
 
   return (
@@ -114,6 +145,7 @@ export default function Home() {
                   onSubmit={handleEtiquetaSubmit}
                   onPrint={handlePrint}
                   isSaving={isSaving}
+                  hideImprimir={true}
                 />
               </div>
               
@@ -122,28 +154,41 @@ export default function Home() {
                   <h2 className="text-xl font-semibold text-secondary border-b-2 border-primary pb-2">
                     Visualização da Etiqueta
                   </h2>
-                  <div className="no-print">
-                    <Button 
-                      variant={tamanhoPreview === 'P' ? "default" : "outline"} 
-                      onClick={() => setTamanhoPreview('P')} 
-                      className="rounded-l-md rounded-r-none"
-                    >
-                      P
-                    </Button>
-                    <Button 
-                      variant={tamanhoPreview === 'M' ? "default" : "outline"} 
-                      onClick={() => setTamanhoPreview('M')} 
-                      className="rounded-l-none rounded-r-md"
-                    >
-                      M
-                    </Button>
+                  <div className="flex items-center gap-2 no-print">
+                    <ConfigsImpressao
+                      onPrint={handlePrint}
+                      tamanhoSelecionado={tamanhoImpressora}
+                      modoPB={modoPB}
+                      onChangeTamanho={handleChangeTamanhoImpressora}
+                      onChangeModoPB={handleChangeModoPB}
+                    />
+                    <div>
+                      <Button 
+                        variant={tamanhoPreview === 'P' ? "default" : "outline"} 
+                        onClick={() => setTamanhoPreview('P')} 
+                        className="rounded-l-md rounded-r-none"
+                      >
+                        P
+                      </Button>
+                      <Button 
+                        variant={tamanhoPreview === 'M' ? "default" : "outline"} 
+                        onClick={() => setTamanhoPreview('M')} 
+                        className="rounded-l-none rounded-r-md"
+                      >
+                        M
+                      </Button>
+                    </div>
                   </div>
                 </div>
                 
-                <PreviewEtiqueta 
-                  etiqueta={etiquetaAtual} 
-                  tamanho={tamanhoPreview} 
-                />
+                <div ref={etiquetaPreviewRef}>
+                  <PreviewEtiqueta 
+                    etiqueta={etiquetaAtual} 
+                    tamanho={tamanhoPreview}
+                    tamanhoImpressora={tamanhoImpressora}
+                    modoPB={modoPB}
+                  />
+                </div>
               </div>
             </div>
           </CardContent>

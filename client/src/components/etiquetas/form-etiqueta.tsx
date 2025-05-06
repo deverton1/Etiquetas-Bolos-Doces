@@ -31,6 +31,7 @@ interface FormEtiquetaProps {
   onSubmit: (data: Etiqueta) => void;
   onPrint: () => void;
   isSaving: boolean;
+  hideImprimir?: boolean;
 }
 
 // Schema de validação do formulário
@@ -59,7 +60,7 @@ const formSchema = z.object({
   })).optional()
 });
 
-export default function FormEtiqueta({ etiqueta, onSubmit, onPrint, isSaving }: FormEtiquetaProps) {
+export default function FormEtiqueta({ etiqueta, onSubmit, onPrint, isSaving, hideImprimir = false }: FormEtiquetaProps) {
   const [nutrientesAdicionais, setNutrientesAdicionais] = useState<NutrienteAdicional[]>([]);
   
   // Configuração do formulário com valores padrão
