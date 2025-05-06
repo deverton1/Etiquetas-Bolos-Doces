@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { etiquetas, etiquetaInsertSchema } from "@shared/schema";
+import { etiquetas, etiquetaInsertSchema, etiquetaValidationSchema } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";

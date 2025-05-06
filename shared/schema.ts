@@ -36,6 +36,28 @@ export type NutrienteAdicional = {
 export const etiquetaInsertSchema = createInsertSchema(etiquetas);
 export const etiquetaSelectSchema = createSelectSchema(etiquetas);
 
+// Schema personalizado para validação com coerção de tipos
+export const etiquetaValidationSchema = z.object({
+  id: z.number().optional(),
+  nome: z.string().min(3, "O nome deve ter pelo menos 3 caracteres"),
+  descricao: z.string().min(5, "A descrição deve ter pelo menos 5 caracteres"),
+  dataFabricacao: z.string().min(1, "Selecione a data de fabricação"),
+  dataValidade: z.string().min(1, "Selecione a data de validade"),
+  porcao: z.coerce.number().positive("Deve ser maior que zero"),
+  unidadePorcao: z.string(),
+  valorEnergetico: z.coerce.number().positive("Deve ser maior que zero"),
+  unidadeEnergetico: z.string(),
+  carboidratos: z.coerce.number().min(0, "Não pode ser negativo"),
+  acucares: z.coerce.number().min(0, "Não pode ser negativo"),
+  proteinas: z.coerce.number().min(0, "Não pode ser negativo"),
+  gordurasTotais: z.coerce.number().min(0, "Não pode ser negativo"),
+  gordurasSaturadas: z.coerce.number().min(0, "Não pode ser negativo"),
+  sodio: z.coerce.number().min(0, "Não pode ser negativo"),
+  fibras: z.coerce.number().min(0, "Não pode ser negativo"),
+  nutrientesAdicionais: z.any().optional(),
+  dataCriacao: z.date().optional()
+});
+
 // Tipos para uso no frontend
 export type EtiquetaInsert = z.infer<typeof etiquetaInsertSchema>;
 export type Etiqueta = z.infer<typeof etiquetaSelectSchema>;
