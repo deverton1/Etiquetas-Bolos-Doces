@@ -13,6 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 import { type Etiqueta } from "@shared/schema";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
+import { formatarDataBR } from "@/lib/utils/dates";
+import { calcularVD } from "@/lib/utils/nutritionCalc";
 
 export default function Home() {
   const [showDocs, setShowDocs] = useState(false);
@@ -118,8 +120,124 @@ export default function Home() {
     const printEtiqueta = document.createElement('div');
     printEtiqueta.className = `preview-etiqueta tamanho-${tamanhoImpressora} ${modoPB ? 'impressao-pb' : ''}`;
     
-    // Clonar apenas o conteúdo da etiqueta atual (não o preview)
-    const previewContent = etiquetaPreviewRef.current?.querySelector('[data-is-etiqueta="true"]')?.cloneNode(true);
+    // Criar conteúdo totalmente novo para a etiqueta (sem clonar o preview existente)
+    const previewContent = document.createElement('div');
+    previewContent.innerHTML = `
+      <div class="etiqueta-impressao">
+        <div class="text-center mb-4 pb-2 border-b border-primary/50">
+          <div class="font-serif text-2xl text-secondary">Doces Mara</div>
+          <p class="text-sm text-secondary/70">Confeitaria Artesanal</p>
+        </div>
+        
+        <div>
+          <h3 class="text-xl font-bold text-secondary text-center mb-2">
+            ${etiquetaAtual.nome}
+          </h3>
+          <p class="text-sm text-secondary/80 mb-3 text-center italic">
+            ${etiquetaAtual.descricao}
+          </p>
+          
+          <div class="grid grid-cols-2 gap-2 mb-4 text-sm">
+            <div>
+              <p class="font-semibold text-secondary">Data de Fabricação:</p>
+              <p class="text-secondary/80">${formatarDataBR(etiquetaAtual.dataFabricacao)}</p>
+            </div>
+            <div>
+              <p class="font-semibold text-secondary">Validade:</p>
+              <p class="text-secondary/80">${formatarDataBR(etiquetaAtual.dataValidade)}</p>
+            </div>
+          </div>
+          
+          ${mostrarTabela ? `
+          <div class="border border-secondary/30 rounded-md overflow-hidden">
+            <div class="bg-primary text-secondary font-bold text-center py-1">
+              INFORMAÇÃO NUTRICIONAL
+            </div>
+            <div class="p-2 text-sm">
+              <p class="mb-1 text-xs">
+                Porção de ${etiquetaAtual.porcao}${etiquetaAtual.unidadePorcao} (1 fatia)
+              </p>
+              
+              <table class="w-full border-collapse">
+                <thead>
+                  <tr class="border-b border-secondary/30">
+                    <th class="text-left py-1 pr-1 text-secondary">Nutrientes</th>
+                    <th class="text-right py-1 text-secondary">Quantidade</th>
+                    <th class="text-right py-1 pl-1 text-secondary">VD%*</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="border-b border-gray-200">
+                    <td class="py-1 text-secondary/80">Valor Energético</td>
+                    <td class="text-right py-1">${etiquetaAtual.valorEnergetico} ${etiquetaAtual.unidadeEnergetico}</td>
+                    <td class="text-right py-1 pl-1">${calcularVD('energetico', etiquetaAtual.valorEnergetico)}%</td>
+                  </tr>
+                  <tr class="border-b border-gray-200">
+                    <td class="py-1 text-secondary/80">Carboidratos</td>
+                    <td class="text-right py-1">${etiquetaAtual.carboidratos}g</td>
+                    <td class="text-right py-1 pl-1">${calcularVD('carboidratos', etiquetaAtual.carboidratos)}%</td>
+                  </tr>
+                  <tr class="border-b border-gray-200">
+                    <td class="py-1 text-secondary/80 pl-2">Açúcares</td>
+                    <td class="text-right py-1">${etiquetaAtual.acucares}g</td>
+                    <td class="text-right py-1 pl-1">-</td>
+                  </tr>
+                  <tr class="border-b border-gray-200">
+                    <td class="py-1 text-secondary/80">Proteínas</td>
+                    <td class="text-right py-1">${etiquetaAtual.proteinas}g</td>
+                    <td class="text-right py-1 pl-1">${calcularVD('proteinas', etiquetaAtual.proteinas)}%</td>
+                  </tr>
+                  <tr class="border-b border-gray-200">
+                    <td class="py-1 text-secondary/80">Gorduras Totais</td>
+                    <td class="text-right py-1">${etiquetaAtual.gordurasTotais}g</td>
+                    <td class="text-right py-1 pl-1">${calcularVD('gorduras', etiquetaAtual.gordurasTotais)}%</td>
+                  </tr>
+                  <tr class="border-b border-gray-200">
+                    <td class="py-1 text-secondary/80 pl-2">Gorduras Saturadas</td>
+                    <td class="text-right py-1">${etiquetaAtual.gordurasSaturadas}g</td>
+                    <td class="text-right py-1 pl-1">${calcularVD('gordurasSaturadas', etiquetaAtual.gordurasSaturadas)}%</td>
+                  </tr>
+                  <tr class="border-b border-gray-200">
+                    <td class="py-1 text-secondary/80">Fibras</td>
+                    <td class="text-right py-1">${etiquetaAtual.fibras}g</td>
+                    <td class="text-right py-1 pl-1">${calcularVD('fibras', etiquetaAtual.fibras)}%</td>
+                  </tr>
+                  <tr>
+                    <td class="py-1 text-secondary/80">Sódio</td>
+                    <td class="text-right py-1">${etiquetaAtual.sodio}mg</td>
+                    <td class="text-right py-1 pl-1">${calcularVD('sodio', etiquetaAtual.sodio)}%</td>
+                  </tr>
+                  ${etiquetaAtual.nutrientesAdicionais && Array.isArray(etiquetaAtual.nutrientesAdicionais) ? 
+                    etiquetaAtual.nutrientesAdicionais.map((nutriente: any, index: number) => `
+                      <tr key=${index} class="border-b border-gray-200">
+                        <td class="py-1 text-secondary/80">
+                          ${nutriente?.nome || ''}
+                        </td>
+                        <td class="text-right py-1">
+                          ${nutriente?.valor || 0}${nutriente?.unidade || 'g'}
+                        </td>
+                        <td class="text-right py-1 pl-1">-</td>
+                      </tr>
+                    `).join('') : ''
+                  }
+                </tbody>
+              </table>
+              
+              <p class="mt-2 text-xs text-secondary/80">
+                *Valores Diários de referência com base em uma dieta de 2.000 kcal.
+              </p>
+            </div>
+          </div>
+          ` : ''}
+          
+          <div class="mt-3 text-xs text-center text-secondary/80">
+            <p>DOCES MARA</p>
+            <p>Rua Francisco Marengo 1735 - São Paulo - CEP 03313000</p>
+            <p>Tel: (11) 9 7083-6151 / (11) 9 8148-2372 - @docesmaratatuape</p>
+          </div>
+        </div>
+      </div>
+    `;
     
     if (previewContent) {
       printEtiqueta.appendChild(previewContent);
