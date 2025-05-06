@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { Plus, Edit2, Trash2 } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Plus, Edit2, Trash2, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -24,6 +25,18 @@ interface ListaEtiquetasProps {
 
 export default function ListaEtiquetas({ etiquetas, isLoading, onEdit, onDelete }: ListaEtiquetasProps) {
   const [etiquetaParaExcluir, setEtiquetaParaExcluir] = useState<number | null>(null);
+  const [termoPesquisa, setTermoPesquisa] = useState<string>('');
+  
+  // Filtra as etiquetas com base no termo de pesquisa
+  const etiquetasFiltradas = useMemo(() => {
+    if (!termoPesquisa.trim()) return etiquetas;
+    
+    const termoLowerCase = termoPesquisa.toLowerCase();
+    return etiquetas.filter(etiqueta => 
+      etiqueta.nome.toLowerCase().includes(termoLowerCase) || 
+      etiqueta.descricao.toLowerCase().includes(termoLowerCase)
+    );
+  }, [etiquetas, termoPesquisa]);
   
   const handleEdit = (etiqueta: Etiqueta) => {
     onEdit(etiqueta);
@@ -49,9 +62,22 @@ export default function ListaEtiquetas({ etiquetas, isLoading, onEdit, onDelete 
   
   return (
     <>
-      <h2 className="text-xl font-semibold text-secondary mb-4 border-b-2 border-primary pb-2">
-        Etiquetas Salvas
-      </h2>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+        <h2 className="text-xl font-semibold text-secondary border-b-2 border-primary pb-2">
+          Etiquetas Salvas
+        </h2>
+        
+        <div className="relative mt-2 sm:mt-0 w-full sm:w-64">
+          <Input
+            type="text"
+            placeholder="Pesquisar etiquetas..."
+            value={termoPesquisa}
+            onChange={(e) => setTermoPesquisa(e.target.value)}
+            className="pr-8 pl-3 py-1 border-primary/30 focus:border-primary"
+          />
+          <Search className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-secondary/50" />
+        </div>
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {isLoading ? (
@@ -68,10 +94,18 @@ export default function ListaEtiquetas({ etiquetas, isLoading, onEdit, onDelete 
               </div>
             </Card>
           ))
+        ) : etiquetasFiltradas.length === 0 && termoPesquisa.trim() !== '' ? (
+          // Mensagem quando não encontrar resultados na pesquisa
+          <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center py-8">
+            <p className="text-secondary/70 text-lg mb-2">Nenhuma etiqueta encontrada</p>
+            <p className="text-secondary/50">
+              Não encontramos nenhuma etiqueta com o termo <strong>"{termoPesquisa}"</strong>
+            </p>
+          </div>
         ) : (
           // Lista de etiquetas
           <>
-            {etiquetas.map((etiqueta) => (
+            {etiquetasFiltradas.map((etiqueta) => (
               <Card 
                 key={etiqueta.id} 
                 className="border border-gray-200 rounded-md p-3 hover:border-primary cursor-pointer transition-all"
