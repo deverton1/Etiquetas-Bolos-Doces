@@ -106,6 +106,12 @@
       transform: scale(1) !important;
     }
     
+    /* Esconder o preview normal do site quando estiver imprimindo */
+    #etiquetaPreviewRef {
+      display: none !important;
+      visibility: hidden !important;
+    }
+    
     .etiqueta-print-container * {
       visibility: visible !important;
       display: block;

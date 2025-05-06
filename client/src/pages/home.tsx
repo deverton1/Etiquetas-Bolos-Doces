@@ -100,34 +100,49 @@ export default function Home() {
   };
 
   const handlePrint = () => {
+    if (!etiquetaAtual) {
+      toast({
+        title: "Nenhuma etiqueta selecionada",
+        description: "Selecione uma etiqueta da lista para imprimir.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     // Criar um elemento para impressão
     const printContainer = document.createElement('div');
     printContainer.className = 'etiqueta-print-container';
     document.body.appendChild(printContainer);
     
-    // Criar um clone da etiqueta para impressão com as configurações corretas
+    // Criar um componente específico para impressão com a etiqueta selecionada
     const printEtiqueta = document.createElement('div');
-    printEtiqueta.innerHTML = etiquetaPreviewRef.current?.innerHTML || '';
     printEtiqueta.className = `preview-etiqueta tamanho-${tamanhoImpressora} ${modoPB ? 'impressao-pb' : ''}`;
-    printContainer.appendChild(printEtiqueta);
     
-    // Aplicar estilos para impressão diretamente
-    printEtiqueta.style.display = 'block';
-    printEtiqueta.style.visibility = 'visible';
-    printEtiqueta.style.backgroundColor = 'white';
-    printEtiqueta.style.color = 'black';
-    printEtiqueta.style.padding = '10px';
-    printEtiqueta.style.margin = '0 auto';
+    // Clonar apenas o conteúdo da etiqueta atual (não o preview)
+    const previewContent = etiquetaPreviewRef.current?.querySelector('[data-is-etiqueta="true"]')?.cloneNode(true);
     
-    // Imprimir e depois remover o elemento
-    setTimeout(() => {
-      window.print();
+    if (previewContent) {
+      printEtiqueta.appendChild(previewContent);
+      printContainer.appendChild(printEtiqueta);
+    
+      // Aplicar estilos para impressão diretamente
+      printEtiqueta.style.display = 'block';
+      printEtiqueta.style.visibility = 'visible';
+      printEtiqueta.style.backgroundColor = 'white';
+      printEtiqueta.style.color = 'black';
+      printEtiqueta.style.padding = '0';
+      printEtiqueta.style.margin = '0';
       
-      // Remover o elemento após a impressão
+      // Imprimir e depois remover o elemento
       setTimeout(() => {
-        document.body.removeChild(printContainer);
-      }, 1000);
-    }, 200);
+        window.print();
+        
+        // Remover o elemento após a impressão
+        setTimeout(() => {
+          document.body.removeChild(printContainer);
+        }, 1000);
+      }, 200);
+    }
   };
   
   const handleChangeTamanhoImpressora = (tamanho: string) => {
@@ -195,7 +210,7 @@ export default function Home() {
                   </div>
                 </div>
                 
-                <div ref={etiquetaPreviewRef}>
+                <div ref={etiquetaPreviewRef} id="etiquetaPreviewRef" className="no-print-preview">
                   <PreviewEtiqueta 
                     etiqueta={etiquetaAtual} 
                     tamanho={tamanhoPreview}

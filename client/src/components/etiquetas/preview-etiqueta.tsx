@@ -63,6 +63,7 @@ export default function PreviewEtiqueta({
       ref={previewRef}
       id="etiquetaPreview" 
       className={`preview-etiqueta nome-bolo border-2 border-secondary rounded-md p-4 bg-white shadow-md transition-transform ${isPreviewImpressao ? 'h-auto' : 'min-h-[500px]'} ${impressaoClasses}`}
+      data-is-etiqueta="true"
     >
       {/* Cabeçalho */}
       <div className="text-center mb-4 pb-2 border-b border-primary/50">
