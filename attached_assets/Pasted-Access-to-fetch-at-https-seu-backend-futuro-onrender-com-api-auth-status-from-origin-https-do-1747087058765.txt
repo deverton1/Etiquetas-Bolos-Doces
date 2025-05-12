@@ -1,0 +1,33 @@
+Access to fetch at 'https://seu-backend-futuro.onrender.com/api/auth/status' from origin 'https://doces-mara.onrender.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource. If an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.Entenda o erro
+seu-backend-futuro.onrender.com/api/auth/status:1 
+            
+            
+           Failed to load resource: net::ERR_FAILEDEntenda o erro
+login:1 Access to fetch at 'https://seu-backend-futuro.onrender.com/api/login' from origin 'https://doces-mara.onrender.com' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource. If an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.Entenda o erro
+seu-backend-futuro.onrender.com/api/login:1 
+            
+            
+           Failed to load resource: net::ERR_FAILEDEntenda o erro
+index-CnYhsmNm.js:40 NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at Rx (index-CnYhsmNm.js:40:26080)
+    at cr (index-CnYhsmNm.js:40:27370)
+    at Ax (index-CnYhsmNm.js:40:27830)
+    at cr (index-CnYhsmNm.js:40:27520)
+    at Ax (index-CnYhsmNm.js:40:27633)
+    at cr (index-CnYhsmNm.js:40:27520)
+    at Ax (index-CnYhsmNm.js:40:27830)
+    at cr (index-CnYhsmNm.js:40:27520)
+    at Ax (index-CnYhsmNm.js:40:30565)
+    at cr (index-CnYhsmNm.js:40:27520)
+Yd @ index-CnYhsmNm.js:40Entenda o erro
+index-CnYhsmNm.js:38 Uncaught NotFoundError: Failed to execute 'removeChild' on 'Node': The node to be removed is not a child of this node.
+    at Rx (index-CnYhsmNm.js:40:26080)
+    at cr (index-CnYhsmNm.js:40:27370)
+    at Ax (index-CnYhsmNm.js:40:27830)
+    at cr (index-CnYhsmNm.js:40:27520)
+    at Ax (index-CnYhsmNm.js:40:27633)
+    at cr (index-CnYhsmNm.js:40:27520)
+    at Ax (index-CnYhsmNm.js:40:27830)
+    at cr (index-CnYhsmNm.js:40:27520)
+    at Ax (index-CnYhsmNm.js:40:30565)
+    at cr (index-CnYhsmNm.js:40:27520)
