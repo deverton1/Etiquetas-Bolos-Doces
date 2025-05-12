@@ -5,34 +5,21 @@ import cors from "cors";
 
 const app = express();
 
-// Configuração CORS super permissiva para eliminar problemas em produção
-app.use(
-  cors({
-    // Em ambiente de produção, aceita qualquer origem
-    origin: true,
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
-    exposedHeaders: ["Content-Length", "X-Foo", "X-Bar"],
-    optionsSuccessStatus: 200,
-    maxAge: 86400 // 24 horas em segundos
-  })
-);
+// Configuração CORS simplificada
+const corsOptions = {
+  // Em produção, use a variável de ambiente CORS_ORIGIN
+  // Em desenvolvimento, aceite qualquer origem
+  origin: process.env.CORS_ORIGIN || true,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+  optionsSuccessStatus: 200
+};
 
-// Middleware adicional para garantir headers CORS em todas as respostas
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  
-  // OPTIONS interceptor para responder mais rapidamente a preflight requests
-  if (req.method === 'OPTIONS') {
-    return res.status(204).end();
-  }
-  
-  next();
-});
+app.use(cors(corsOptions));
+
+// Resposta rápida para OPTIONS
+app.options('*', cors(corsOptions));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

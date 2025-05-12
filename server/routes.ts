@@ -28,16 +28,17 @@ const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Configuração da sessão aprimorada para produção
+  // Configuração da sessão otimizada e segura
   app.use(session({
     secret: process.env.SESSION_SECRET || 'docesmara-segredo',
     resave: false,
     saveUninitialized: false,
     cookie: { 
-      // Em produção, só aceita cookies seguros 
-      // Em desenvolvimento, aceita cookies não seguros
-      secure: process.env.NODE_ENV === 'production' ? true : false,
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      // Em produção, configuração mais segura
+      secure: process.env.NODE_ENV === 'production',
+      // Mesmo em produção, usamos lax para funcionar melhor em diferentes hosts
+      sameSite: 'lax',
+      httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000 // 24 horas
     }
   }));
