@@ -5,42 +5,32 @@ import cors from "cors";
 
 const app = express();
 
-// Configuração CORS mais robusta
+// Configuração CORS super permissiva para eliminar problemas em produção
 app.use(
   cors({
-    // Em produção, aceita apenas as origens específicas
-    // Em desenvolvimento, aceita qualquer origem
-    origin: (origin, callback) => {
-      const allowedOrigins = [
-        "https://doces-mara.onrender.com",
-        "https://doces-mara.replit.app",
-      ];
-      
-      // Permite requisições sem Origin (como mobile apps ou Postman)
-      if (!origin) return callback(null, true);
-      
-      // Em desenvolvimento, aceita qualquer origem
-      if (process.env.NODE_ENV !== "production") return callback(null, true);
-      
-      // Em produção, verifica se a origem está na lista de permitidas
-      if (allowedOrigins.indexOf(origin) !== -1 || origin.includes("render.com")) {
-        return callback(null, true);
-      } else {
-        return callback(null, true); // Temporariamente aceitando todas as origens para debug
-      }
-    },
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    // Em ambiente de produção, aceita qualquer origem
+    origin: true,
     credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
-  }),
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+    exposedHeaders: ["Content-Length", "X-Foo", "X-Bar"],
+    optionsSuccessStatus: 200,
+    maxAge: 86400 // 24 horas em segundos
+  })
 );
 
 // Middleware adicional para garantir headers CORS em todas as respostas
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", req.headers.origin || "*");
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT,DELETE,PATCH");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  // OPTIONS interceptor para responder mais rapidamente a preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+  
   next();
 });
 

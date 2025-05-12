@@ -1,18 +1,14 @@
-/* Importação mais simples da fonte BADHORSE */
-@import url('https://fonts.cdnfonts.com/css/badhorse');
+/* Carregamos fontes do Google como alternativa mais confiável */
+@import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Declaração de fonte alternativa caso o import falhe */
-@font-face {
-  font-family: 'BADHORSE';
-  src: local('BADHORSE'), 
-       url('https://fonts.cdnfonts.com/css/badhorse') format('woff');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
+/* Usamos fonte fallback quando a BADHORSE falhar */
+.font-badhorse {
+  font-family: 'Abril Fatface', cursive, serif;
+  letter-spacing: 1px;
 }
 
 @layer base {
