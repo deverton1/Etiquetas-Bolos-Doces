@@ -5,7 +5,7 @@
 /* Importando a fonte BADHORSE */
 @font-face {
   font-family: 'BADHORSE';
-  src: url('https://fonts.cdnfonts.com/s/17851/BADHORSE.woff') format('woff');
+  src: url('/fonts/BADHORSE.woff') format('woff');
   font-weight: normal;
   font-style: normal;
 }

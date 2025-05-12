@@ -1,117 +1,127 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { createContext, useContext, useState, ReactNode } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 
-// Tipo para o usuário
-type User = {
+// Define types
+interface User {
   id: number;
   email: string;
   isAdmin: boolean;
-};
+}
 
-// Tipo para as credenciais de login
-type LoginCredentials = {
+interface LoginCredentials {
   email: string;
   password: string;
-};
+}
 
-// Tipo para o contexto de autenticação
-type AuthContextType = {
+interface AuthContextType {
+  isAuthenticated: boolean;
   user: User | null;
   isLoading: boolean;
-  isAuthenticated: boolean;
+  error: string | null;
   login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => Promise<void>;
-  error: string | null;
-};
+}
 
-// Criação do contexto
+// Create the auth context
 const AuthContext = createContext<AuthContextType | null>(null);
 
-// Provider para o contexto
+// Auth provider component
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
-  const queryClient = useQueryClient();
+  const apiUrl = import.meta.env.VITE_API_URL || '';
 
-  // Query para verificar o status da autenticação
-  const { data, isLoading, refetch } = useQuery({
-    queryKey: ["/api/auth/status"],
-    refetchOnWindowFocus: false,
-    retry: false,
+  // Auth status query
+  const { 
+    data: authData, 
+    isLoading: authLoading,
+    refetch: refetchAuth 
+  } = useQuery({
+    queryKey: ['authStatus'],
+    queryFn: async () => {
+      const res = await fetch(`${apiUrl}/api/auth/status`, {
+        credentials: 'include'
+      });
+      if (!res.ok) return { authenticated: false, user: null };
+      return await res.json();
+    },
+    retry: false
   });
 
-  // Mutation para login
-  const loginMutation = useMutation({
+  // Login mutation
+  const { mutateAsync: loginMutate, isPending: loginLoading } = useMutation({
     mutationFn: async (credentials: LoginCredentials) => {
-      const response = await fetch('/api/login', {
+      const response = await fetch(`${apiUrl}/api/login`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials),
-        credentials: 'include',
+        credentials: 'include'
       });
-
+      
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Falha ao realizar login");
+        throw new Error(errorData.message || 'Falha no login');
       }
-
-      return await response.json();
-    },
-    onSuccess: () => {
-      setError(null);
-      refetch();
-    },
-    onError: (error: Error) => {
-      setError(error.message);
-    },
+      
+      return response.json();
+    }
   });
 
-  // Mutation para logout
-  const logoutMutation = useMutation({
+  // Logout mutation
+  const { mutateAsync: logoutMutate, isPending: logoutLoading } = useMutation({
     mutationFn: async () => {
-      const response = await fetch('/api/logout', {
+      const response = await fetch(`${apiUrl}/api/logout`, {
         method: 'POST',
-        credentials: 'include',
+        credentials: 'include'
       });
-
+      
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Falha ao realizar logout");
+        throw new Error(errorData.message || 'Falha no logout');
       }
-
-      return await response.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/status"] });
-    },
-    onError: (error: Error) => {
-      setError(error.message);
-    },
+      
+      return response.json();
+    }
   });
 
-  // Função para realizar login
+  // Login function
   const login = async (credentials: LoginCredentials) => {
-    await loginMutation.mutateAsync(credentials);
+    try {
+      await loginMutate(credentials);
+      await refetchAuth();
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao fazer login');
+      throw err;
+    }
   };
 
-  // Função para realizar logout
+  // Logout function
   const logout = async () => {
-    await logoutMutation.mutateAsync();
+    try {
+      await logoutMutate();
+      await refetchAuth();
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao fazer logout');
+      throw err;
+    }
   };
 
-  const user = data?.authenticated ? data.user : null;
-  const isAuthenticated = !!user;
+  // Get auth status values
+  const isAuthenticated = authData?.authenticated || false;
+  const user = authData?.user || null;
+  const isLoading = authLoading || loginLoading || logoutLoading;
 
+  // Return the provider
   return (
     <AuthContext.Provider
       value={{
-        user,
-        isLoading: isLoading || loginMutation.isPending || logoutMutation.isPending,
         isAuthenticated,
-        login,
-        logout,
+        user,
+        isLoading,
         error,
+        login,
+        logout
       }}
     >
       {children}
@@ -119,11 +129,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// Hook para utilizar o contexto
+// Hook to use the auth context
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth deve ser usado dentro de um AuthProvider");
+    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
   }
   return context;
 }
