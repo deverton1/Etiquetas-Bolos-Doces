@@ -1,14 +1,104 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { db } from "@db";
-import { etiquetas, etiquetaInsertSchema, etiquetaValidationSchema } from "@shared/schema";
+import { etiquetas, etiquetaInsertSchema, etiquetaValidationSchema, users, loginSchema } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
+import bcrypt from "bcryptjs";
+import session from "express-session";
+
+// Middleware de autenticação
+const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+  if (req.session.user) {
+    return next();
+  }
+  return res.status(401).json({ message: "Não autorizado" });
+};
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Configuração da sessão
+  app.use(session({
+    secret: 'docesmara-segredo',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24 horas
+  }));
+
   // API prefix
   const apiPrefix = '/api';
+  
+  // Login
+  app.post(`${apiPrefix}/login`, async (req, res) => {
+    try {
+      // Validar os dados de login
+      const dadosLogin = loginSchema.parse(req.body);
+      
+      // Verificar se o usuário existe
+      const usuario = await db.query.users.findFirst({
+        where: eq(users.email, dadosLogin.email)
+      });
+      
+      if (!usuario) {
+        return res.status(401).json({ message: "Credenciais inválidas" });
+      }
+      
+      // Verificar a senha
+      const senhaCorreta = await bcrypt.compare(dadosLogin.password, usuario.password);
+      
+      if (!senhaCorreta) {
+        return res.status(401).json({ message: "Credenciais inválidas" });
+      }
+      
+      // Criar sessão
+      req.session.user = {
+        id: usuario.id,
+        email: usuario.email,
+        isAdmin: usuario.isAdmin
+      };
+      
+      return res.json({ 
+        message: "Login realizado com sucesso",
+        user: {
+          id: usuario.id,
+          email: usuario.email,
+          isAdmin: usuario.isAdmin
+        }
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const validationError = fromZodError(error);
+        return res.status(400).json({ 
+          message: "Erro de validação", 
+          errors: validationError.message 
+        });
+      }
+      
+      console.error("Erro ao fazer login:", error);
+      return res.status(500).json({ message: "Erro ao fazer login" });
+    }
+  });
+  
+  // Verificar status de autenticação
+  app.get(`${apiPrefix}/auth/status`, (req, res) => {
+    if (req.session.user) {
+      return res.json({ 
+        authenticated: true, 
+        user: req.session.user 
+      });
+    }
+    return res.json({ authenticated: false });
+  });
+  
+  // Logout
+  app.post(`${apiPrefix}/logout`, (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ message: "Erro ao fazer logout" });
+      }
+      return res.json({ message: "Logout realizado com sucesso" });
+    });
+  });
   
   // Obter todas as etiquetas
   app.get(`${apiPrefix}/etiquetas`, async (_req, res) => {
