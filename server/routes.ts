@@ -28,12 +28,18 @@ const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Configuração da sessão
+  // Configuração da sessão aprimorada para produção
   app.use(session({
-    secret: 'docesmara-segredo',
+    secret: process.env.SESSION_SECRET || 'docesmara-segredo',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24 horas
+    cookie: { 
+      // Em produção, só aceita cookies seguros 
+      // Em desenvolvimento, aceita cookies não seguros
+      secure: process.env.NODE_ENV === 'production' ? true : false,
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 24 * 60 * 60 * 1000 // 24 horas
+    }
   }));
 
   // API prefix
@@ -85,8 +91,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
+      // Log mais detalhado para ajudar na depuração
       console.error("Erro ao fazer login:", error);
-      return res.status(500).json({ message: "Erro ao fazer login" });
+      console.error("Detalhes do erro:", JSON.stringify(error, null, 2));
+      
+      // Resposta mais informativa (em produção, você pode querer remover os detalhes do erro)
+      return res.status(500).json({ 
+        message: "Erro ao fazer login",
+        error: process.env.NODE_ENV === 'production' ? 'Erro interno' : String(error)
+      });
     }
   });
   
