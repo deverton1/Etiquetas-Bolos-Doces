@@ -1,0 +1,45 @@
+Failed to load resource: the server responded with a status of 500 ()Entenda o erro
+doces-mara.onrender.com/:1 Access to fetch at 'https://seu-backend-futuro.onrender.com/api/auth/status' from origin 'https://doces-mara.onrender.com' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource. If an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.Entenda o erro
+seu-backend-futuro.onrender.com/api/auth/status:1 
+            
+            
+           Failed to load resource: net::ERR_FAILEDEntenda o erro
+index-C3Pz67Kz.js:193 Error fetching auth status: TypeError: Failed to fetch
+    at queryFn (index-C3Pz67Kz.js:193:23339)
+    at Object.o [as fn] (index-C3Pz67Kz.js:48:14502)
+    at b (index-C3Pz67Kz.js:48:10021)
+    at Object.start (index-C3Pz67Kz.js:48:10480)
+    at Eg.fetch (index-C3Pz67Kz.js:48:15854)
+    at Pg.ki (index-C3Pz67Kz.js:48:36389)
+    at Pg.onSubscribe (index-C3Pz67Kz.js:48:30999)
+    at Pg.subscribe (index-C3Pz67Kz.js:48:4391)
+    at index-C3Pz67Kz.js:48:42019
+    at rx (index-C3Pz67Kz.js:38:19682)
+queryFn @ index-C3Pz67Kz.js:193Entenda o erro
+12Failed to decode downloaded font: <URL>Entenda o aviso
+12OTS parsing error: invalid sfntVersion: 1008813135Entenda o aviso
+login:1 Access to fetch at 'https://seu-backend-futuro.onrender.com/api/login' from origin 'https://doces-mara.onrender.com' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource. If an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.Entenda o erro
+seu-backend-futuro.onrender.com/api/login:1 
+            
+            
+           Failed to load resource: net::ERR_FAILEDEntenda o erro
+index-C3Pz67Kz.js:193 Login error: TypeError: Failed to fetch
+    at Object.mutationFn (index-C3Pz67Kz.js:193:23786)
+    at Object.fn (index-C3Pz67Kz.js:48:19693)
+    at b (index-C3Pz67Kz.js:48:10021)
+    at Object.start (index-C3Pz67Kz.js:48:10480)
+    at Ng.execute (index-C3Pz67Kz.js:48:20498)
+    at async p (index-C3Pz67Kz.js:193:24557)
+    at async i (index-C3Pz67Kz.js:365:10398)
+    at async index-C3Pz67Kz.js:193:111090
+mutationFn @ index-C3Pz67Kz.js:193Entenda o erro
+
+                
+          
+          
+          
+         Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.Entenda o aviso
+badhorse:1 
+            
+            
+           Failed to load resource: the server responded with a status of 500 ()

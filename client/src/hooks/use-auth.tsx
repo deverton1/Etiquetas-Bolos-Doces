@@ -28,7 +28,11 @@ const AuthContext = createContext<AuthContextType | null>(null);
 // Auth provider component
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
-  const apiUrl = import.meta.env.VITE_API_URL || '';
+  
+  // Em produção, use caminhos relativos para evitar CORS
+  // Em desenvolvimento, use a URL da API configurada
+  const isProduction = import.meta.env.PROD;
+  const apiUrl = isProduction ? '' : (import.meta.env.VITE_API_URL || '');
 
   // Auth status query
   const { 
