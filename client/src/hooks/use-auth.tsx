@@ -29,10 +29,9 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   
-  // Em produção, use caminhos relativos para evitar CORS
-  // Em desenvolvimento, use a URL da API configurada
-  const isProduction = import.meta.env.PROD;
-  const apiUrl = isProduction ? '' : (import.meta.env.VITE_API_URL || '');
+  // Usamos caminhos relativos para simplificar
+  // Em ambiente de desenvolvimento, isso é tratado automaticamente pelo Vite
+  const apiUrl = '';
 
   // Auth status query
   const { 
@@ -122,25 +121,61 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   });
 
-  // Login function
+  // Login function com melhor tratamento de erros
   const login = async (credentials: LoginCredentials) => {
     try {
-      await loginMutate(credentials);
+      // Tentativa direta de login usando fetch para mais controle
+      const response = await fetch(`${apiUrl}/api/login`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(credentials),
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        // Se a resposta não for ok, tentamos obter a mensagem de erro
+        try {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Falha no login');
+        } catch (jsonError) {
+          // Se não conseguirmos interpretar o JSON, usamos um erro genérico
+          throw new Error(`Erro ${response.status}: Falha na autenticação`);
+        }
+      }
+      
+      // Se o login for bem-sucedido, atualizamos o estado
       await refetchAuth();
       setError(null);
     } catch (err) {
+      console.error('Login error details:', err);
       setError(err instanceof Error ? err.message : 'Erro ao fazer login');
       throw err;
     }
   };
 
-  // Logout function
+  // Logout function com melhor tratamento de erros
   const logout = async () => {
     try {
-      await logoutMutate();
+      // Tentativa direta de logout usando fetch
+      const response = await fetch(`${apiUrl}/api/logout`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+      
+      // Independente da resposta, atualizamos o estado de autenticação
       await refetchAuth();
       setError(null);
     } catch (err) {
+      console.error('Logout error details:', err);
+      // Mesmo com erro, tentamos atualizar o estado
+      await refetchAuth();
       setError(err instanceof Error ? err.message : 'Erro ao fazer logout');
       throw err;
     }
