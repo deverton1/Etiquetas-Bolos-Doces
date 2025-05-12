@@ -11,6 +11,13 @@ export default function Header({ className, ...props }: HeaderProps) {
         <div className="flex justify-between items-center mb-2">
           <Link href="/">
             <div className="flex items-center cursor-pointer">
+              <div className="h-14 bg-primary rounded-lg p-1 mr-2 flex items-center">
+                <img 
+                  src="/images/logo-doces-mara.png" 
+                  alt="Logo Doces Mara" 
+                  className="h-12 object-contain"
+                />
+              </div>
               <h1 className="text-2xl md:text-3xl font-serif ml-2">Doces Mara</h1>
             </div>
           </Link>

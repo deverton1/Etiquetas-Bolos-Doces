@@ -67,6 +67,15 @@ export default function PreviewEtiqueta({
     >
       {/* Cabeçalho */}
       <div className="text-center mb-4 pb-2 border-b border-primary/50">
+        <div className="flex justify-center mb-2">
+          <div className="h-16 bg-primary rounded-lg p-1">
+            <img 
+              src="/images/logo-doces-mara.png" 
+              alt="Logo Doces Mara" 
+              className="h-14 object-contain"
+            />
+          </div>
+        </div>
         <div className="font-serif text-2xl text-secondary">Doces Mara</div>
         <p className="text-sm text-secondary/70">Confeitaria Artesanal</p>
       </div>

@@ -145,6 +145,15 @@ export default function Home() {
     previewContent.innerHTML = `
       <div class="etiqueta-impressao">
         <div class="text-center mb-4 pb-2 border-b border-primary">
+          <div class="flex justify-center mb-2">
+            <div class="h-16 bg-primary rounded-lg p-1">
+              <img 
+                src="/images/logo-doces-mara.png" 
+                alt="Logo Doces Mara" 
+                class="h-14 object-contain"
+              />
+            </div>
+          </div>
           <div class="font-serif text-2xl text-black font-bold">Doces Mara</div>
           <p class="text-sm text-black font-medium">Confeitaria Artesanal</p>
         </div>
