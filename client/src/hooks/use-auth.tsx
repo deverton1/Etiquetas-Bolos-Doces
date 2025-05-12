@@ -38,48 +38,83 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   } = useQuery({
     queryKey: ['authStatus'],
     queryFn: async () => {
-      const res = await fetch(`${apiUrl}/api/auth/status`, {
-        credentials: 'include'
-      });
-      if (!res.ok) return { authenticated: false, user: null };
-      return await res.json();
+      try {
+        const res = await fetch(`${apiUrl}/api/auth/status`, {
+          credentials: 'include',
+          mode: 'cors',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (!res.ok) {
+          console.log('Auth status response not ok:', res.status);
+          return { authenticated: false, user: null };
+        }
+        
+        return await res.json();
+      } catch (error) {
+        console.error('Error fetching auth status:', error);
+        return { authenticated: false, user: null };
+      }
     },
-    retry: false
+    retry: false,
+    refetchOnWindowFocus: false
   });
 
   // Login mutation
   const { mutateAsync: loginMutate, isPending: loginLoading } = useMutation({
     mutationFn: async (credentials: LoginCredentials) => {
-      const response = await fetch(`${apiUrl}/api/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(credentials),
-        credentials: 'include'
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Falha no login');
+      try {
+        const response = await fetch(`${apiUrl}/api/login`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(credentials),
+          credentials: 'include',
+          mode: 'cors'
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ message: 'Erro na rede' }));
+          throw new Error(errorData.message || 'Falha no login');
+        }
+        
+        return response.json();
+      } catch (error) {
+        console.error('Login error:', error);
+        throw error;
       }
-      
-      return response.json();
     }
   });
 
   // Logout mutation
   const { mutateAsync: logoutMutate, isPending: logoutLoading } = useMutation({
     mutationFn: async () => {
-      const response = await fetch(`${apiUrl}/api/logout`, {
-        method: 'POST',
-        credentials: 'include'
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Falha no logout');
+      try {
+        const response = await fetch(`${apiUrl}/api/logout`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          mode: 'cors'
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ message: 'Erro na rede' }));
+          throw new Error(errorData.message || 'Falha no logout');
+        }
+        
+        return response.json();
+      } catch (error) {
+        console.error('Logout error:', error);
+        throw error;
       }
-      
-      return response.json();
     }
   });
 

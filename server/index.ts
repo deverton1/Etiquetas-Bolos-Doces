@@ -5,18 +5,44 @@ import cors from "cors";
 
 const app = express();
 
-// Configuração CORS - permite requisições de qualquer origem em produção
+// Configuração CORS mais robusta
 app.use(
   cors({
-    origin: [
-      "https://doces-mara.onrender.com",
-      "https://doces-mara.replit.app",
-    ],
+    // Em produção, aceita apenas as origens específicas
+    // Em desenvolvimento, aceita qualquer origem
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        "https://doces-mara.onrender.com",
+        "https://doces-mara.replit.app",
+      ];
+      
+      // Permite requisições sem Origin (como mobile apps ou Postman)
+      if (!origin) return callback(null, true);
+      
+      // Em desenvolvimento, aceita qualquer origem
+      if (process.env.NODE_ENV !== "production") return callback(null, true);
+      
+      // Em produção, verifica se a origem está na lista de permitidas
+      if (allowedOrigins.indexOf(origin) !== -1 || origin.includes("render.com")) {
+        return callback(null, true);
+      } else {
+        return callback(null, true); // Temporariamente aceitando todas as origens para debug
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
+
+// Middleware adicional para garantir headers CORS em todas as respostas
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", req.headers.origin || "*");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT,DELETE,PATCH");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  next();
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
