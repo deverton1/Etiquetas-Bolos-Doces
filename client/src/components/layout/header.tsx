@@ -1,10 +1,21 @@
 import { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/ui/button";
+import { LogOut, Loader2 } from "lucide-react";
 
 interface HeaderProps extends HTMLAttributes<HTMLElement> {}
 
 export default function Header({ className, ...props }: HeaderProps) {
+  const { isAuthenticated, logout, isLoading, user } = useAuth();
+  const [, setLocation] = useLocation();
+  
+  const handleLogout = async () => {
+    await logout();
+    setLocation('/login');
+  };
+  
   return (
     <header className={cn("bg-secondary text-white shadow-md", className)} {...props}>
       <div className="container mx-auto px-4 py-4">
@@ -32,6 +43,29 @@ export default function Header({ className, ...props }: HeaderProps) {
                 Ajuda
               </span>
             </Link>
+            
+            {isAuthenticated && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-white/90">
+                  {user?.email}
+                </span>
+                <Button 
+                  variant="destructive" 
+                  size="sm" 
+                  onClick={handleLogout}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      <LogOut className="h-4 w-4 mr-1" />
+                      Sair
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
           </nav>
         </div>
         <div className="text-xs text-white/80 flex flex-col md:flex-row justify-between">

@@ -8,6 +8,17 @@ import { fromZodError } from "zod-validation-error";
 import bcrypt from "bcryptjs";
 import session from "express-session";
 
+// Tipo personalizado para sessão
+declare module 'express-session' {
+  interface SessionData {
+    user?: {
+      id: number;
+      email: string;
+      isAdmin: boolean;
+    };
+  }
+}
+
 // Middleware de autenticação
 const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
   if (req.session.user) {
