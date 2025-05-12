@@ -1,4 +1,4 @@
-import { pgTable, text, serial, timestamp, integer, decimal, json } from 'drizzle-orm/pg-core';
+import { pgTable, text, serial, timestamp, integer, decimal, json, boolean } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
@@ -58,6 +58,28 @@ export const etiquetaValidationSchema = z.object({
   dataCriacao: z.date().optional()
 });
 
+// Tabela de usuários para autenticação
+export const users = pgTable('users', {
+  id: serial('id').primaryKey(),
+  email: text('email').notNull().unique(),
+  password: text('password').notNull(),
+  isAdmin: boolean('is_admin').default(false).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull()
+});
+
+// Schemas para inserção e seleção de usuários
+export const userInsertSchema = createInsertSchema(users);
+export const userSelectSchema = createSelectSchema(users);
+
+// Schema de validação de login
+export const loginSchema = z.object({
+  email: z.string().email("Email inválido"),
+  password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres")
+});
+
 // Tipos para uso no frontend
 export type EtiquetaInsert = z.infer<typeof etiquetaInsertSchema>;
 export type Etiqueta = z.infer<typeof etiquetaSelectSchema>;
+export type UserInsert = z.infer<typeof userInsertSchema>;
+export type User = z.infer<typeof userSelectSchema>;
+export type LoginCredentials = z.infer<typeof loginSchema>;

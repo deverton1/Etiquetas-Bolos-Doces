@@ -1,5 +1,6 @@
 import { db } from "./index";
 import * as schema from "@shared/schema";
+import bcrypt from "bcryptjs";
 
 async function seed() {
   try {
