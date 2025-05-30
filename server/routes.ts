@@ -1,7 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
-import { db } from "@db"; // Certifique-se de que este @db aponta para o seu server/src/db/index.ts
-import { etiquetas, etiquetaInsertSchema, users, loginSchema } from "@shared/schema"; // Removi 'etiquetaValidationSchema' porque não está sendo usada, apenas 'etiquetaInsertSchema' com parse
+import { db } from "../db"; // Certifique-se de que este @db aponta para o seu server/src/db/index.ts
+import { etiquetas, etiquetaInsertSchema, users, loginSchema } from "../shared/schema"; // Removi 'etiquetaValidationSchema' porque não está sendo usada, apenas 'etiquetaInsertSchema' com parse
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
