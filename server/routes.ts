@@ -33,21 +33,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Para desenvolvimento local e simplicidade, usaremos o armazenamento de sessão em memória padrão
   // Se precisar de persistência de sessão em PostgreSQL local, você pode descomentar e configurar o connect-pg-simple
   app.use(session({
-    secret: process.env.SESSION_SECRET || 'docesmara-segredo', // Use uma variável de ambiente real em produção
+    secret: process.env.SESSION_SECRET || 'docesmara-segredo', // Mantenha isso, mas use uma variável de ambiente forte em produção!
     resave: false,
     saveUninitialized: false,
     cookie: {
-      // Em produção, 'secure' deve ser true e 'sameSite' pode ser 'none' com proxy,
-      // mas 'lax' é mais seguro e funciona bem para maioria dos cenários de dev/prod sem proxy complexo
-      secure: process.env.NODE_ENV === 'production', // Use HTTPS em produção para isso
-      sameSite: 'lax', // 'lax' é um bom balanço para segurança e funcionalidade em muitos setups
-      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // Essencial: 'true' em produção (HTTPS)
+      sameSite: 'lax', // Ótimo para o mesmo domínio, mantém a segurança
+      httpOnly: true, // Boa prática de segurança para cookies
       maxAge: 24 * 60 * 60 * 1000 // 24 horas
     },
-    // store: new (pgSession(session))({
-    //   pool: db.pool, // Assumindo que 'db' tem um pool acessível, como exportado de server/src/db/index.ts
-    //   tableName: 'session' // Nome da tabela para armazenar sessões
-    // })
+    // CRUCIAL para ambientes como o Render.com onde o Node.js está atrás de um proxy!
+    // Isso faz com que o Express.js confie nos cabeçalhos de proxy para informações de conexão,
+    // permitindo que os cookies de sessão funcionem corretamente.
+    proxy: process.env.NODE_ENV === 'production', // <-- Adicionado/modificado para ser 'true' em produção
   }));
 
   // API prefix

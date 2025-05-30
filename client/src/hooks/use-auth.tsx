@@ -1,3 +1,5 @@
+// use-auth.tsx
+
 import { createContext, useContext, useState, ReactNode } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"; // ADICIONADO useQueryClient
 
@@ -44,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const res = await fetch(`${apiUrl}/api/auth/status`, {
           credentials: 'include',
-          mode: 'cors', // Modo cors é geralmente padrão e não estritamente necessário aqui
+          // REMOVIDO: mode: 'cors', // Não é necessário para same-origin
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
@@ -77,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
         body: JSON.stringify(credentials),
         credentials: 'include',
-        mode: 'cors'
+        // REMOVIDO: mode: 'cors' // Não é necessário para same-origin
       });
       
       if (!response.ok) {
@@ -110,7 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        mode: 'cors'
+        // REMOVIDO: mode: 'cors' // Não é necessário para same-origin
       });
       
       if (!response.ok) {
