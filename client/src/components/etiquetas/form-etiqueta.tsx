@@ -106,14 +106,12 @@ export default function FormEtiqueta({ etiqueta, onSubmit, onPrint, isSaving, hi
         gordurasSaturadas: etiqueta.gordurasSaturadas,
         sodio: etiqueta.sodio,
         fibras: etiqueta.fibras,
-        nutrientesAdicionais: etiqueta.nutrientesAdicionais || []
+        // CORREÇÃO AQUI: Garante que o valor é um array vazio se for null/undefined
+        nutrientesAdicionais: (etiqueta.nutrientesAdicionais || []) as NutrienteAdicional[] 
       });
       
-      if (etiqueta.nutrientesAdicionais) {
-        setNutrientesAdicionais(etiqueta.nutrientesAdicionais);
-      } else {
-        setNutrientesAdicionais([]);
-      }
+      // CORREÇÃO AQUI: Garante que o valor é um array vazio se for null/undefined
+      setNutrientesAdicionais((etiqueta.nutrientesAdicionais || []) as NutrienteAdicional[]); 
     } else {
       form.reset({
         nome: "",
@@ -191,6 +189,8 @@ export default function FormEtiqueta({ etiqueta, onSubmit, onPrint, isSaving, hi
       ...data,
       id: data.id || undefined,
       // Remover referência à dataCriacao, o servidor vai definir isso
+      // Certifique-se de que dataCriacao não está sendo enviada se o backend a gera
+      dataCriacao: undefined // Explicitamente definir como undefined ou remover da desestruturação
     };
     onSubmit(etiquetaData as unknown as Etiqueta);
   };
