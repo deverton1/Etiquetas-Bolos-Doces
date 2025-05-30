@@ -1,6 +1,6 @@
 import { Pool } from 'pg'; // Importa o Pool do pacote 'pg'
 import { drizzle } from 'drizzle-orm/node-postgres'; // Altera para o driver do Drizzle para node-postgres
-import * as schema from "@shared/schema"; // Mantém a importação do seu schema
+import * as schema from "../shared/schema"; // Mantém a importação do seu schema
 
 // Carrega as variáveis de ambiente do .env. É bom garantir que isso aconteça aqui.
 // Embora o 'tsx' geralmente faça isso automaticamente com 'dotenv/config',
