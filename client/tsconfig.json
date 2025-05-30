@@ -1,0 +1,34 @@
+// C:\Users\evert\Desktop\EtiquetaDoceira\client\tsconfig.json (CÓDIGO CORRIGIDO)
+{
+  // Apenas inclui os arquivos do frontend, pois este tsconfig é para o cliente
+  "include": ["src/**/*", "vite-env.d.ts", "**/*.ts", "**/*.tsx"], // 'src' dentro de client/
+
+  // Excluir os mesmos que antes, mas o foco é no cliente
+  "exclude": ["node_modules", "build", "dist", "**/*.test.ts"],
+
+  "compilerOptions": {
+    "incremental": true,
+    "tsBuildInfoFile": "./node_modules/typescript/tsbuildinfo",
+    "noEmit": true,
+    "module": "ESNext",
+    "strict": true,
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "jsx": "react-jsx", // Alterado de "preserve" para "react-jsx" para Vite
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    "moduleResolution": "bundler",
+    "baseUrl": ".", // Base é a própria pasta client/
+    "types": ["node"], // Certifique-se de que Node.js types estão aqui
+    "paths": {
+      // Ajuste os aliases para serem relativos à pasta client/
+      // '@/' agora aponta para './src/*' dentro de client/
+      "@/*": ["./src/*"],
+      // '@db' e '@shared' agora apontam para fora da pasta client/
+      // Isso é necessário porque o cliente pode precisar acessar schemas compartilhados
+      "@db": ["../db/index.ts"], // Subir um nível para acessar 'db/' na raiz
+      "@db/*": ["../db/*"],     // Subir um nível para acessar 'db/*' na raiz
+      "@shared/*": ["../shared/*"] // Subir um nível para acessar 'shared/*' na raiz
+    }
+  }
+}
