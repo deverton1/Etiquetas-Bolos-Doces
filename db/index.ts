@@ -1,11 +1,9 @@
+// C:\Users\evert\Desktop\EtiquetaDoceira\db\index.ts
+
 import { Pool } from 'pg'; // Importa o Pool do pacote 'pg'
 import { drizzle } from 'drizzle-orm/node-postgres'; // Altera para o driver do Drizzle para node-postgres
 import * as schema from "../shared/schema"; // Mantém a importação do seu schema
-
-// Carrega as variáveis de ambiente do .env. É bom garantir que isso aconteça aqui.
-// Embora o 'tsx' geralmente faça isso automaticamente com 'dotenv/config',
-// é uma boa prática ter uma importação explícita se o seu projeto não a tiver globalmente.
-import 'dotenv/config'; 
+import 'dotenv/config'; // Carrega as variáveis de ambiente
 
 if (!process.env.DATABASE_URL) {
   throw new Error(
@@ -13,8 +11,16 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
-// Cria uma nova instância do Pool do pg, usando a string de conexão do ambiente
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+// Configuração para usar SSL/TLS em produção
+export const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  // 'rejectUnauthorized: false' é frequentemente usado em ambientes de desenvolvimento ou para provedores
+  // que usam certificados autoassinados. Em produção real com certificados válidos,
+  // você pode querer remover 'rejectUnauthorized: false' ou configurá-lo para 'true'
+  // se você tiver o certificado CA do seu provedor de DB.
+  // No Render, 'rejectUnauthorized: false' geralmente funciona bem com muitos provedores de DB.
+});
 
 // Inicializa o Drizzle com o cliente Pool do pg
 export const db = drizzle(pool, { schema });
