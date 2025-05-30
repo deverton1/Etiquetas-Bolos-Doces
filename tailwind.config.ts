@@ -2,7 +2,16 @@ import type { Config } from "tailwindcss";
 
 export default {
   darkMode: ["class"],
-  content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
+  // CORREÇÃO AQUI: Ajustar os caminhos para serem relativos à RAIZ do projeto
+  // E incluir mais tipos de arquivos comuns onde classes Tailwind podem ser usadas.
+  content: [
+    "./client/index.html", // O index.html do frontend
+    "./client/src/**/*.{js,jsx,ts,tsx,html}", // Todos os arquivos JS, JSX, TS, TSX, HTML dentro de client/src
+    "./client/**/*.{js,jsx,ts,tsx,html}", // Se houver outros arquivos fora de client/src mas dentro de client
+    // Se você tiver componentes que geram HTML dinamicamente ou usam strings com classes Tailwind
+    // certifique-se de que esses arquivos sejam incluídos aqui.
+    // Exemplo: "./client/src/components/**/*.stories.{js,jsx,ts,tsx}"
+  ],
   theme: {
     extend: {
       borderRadius: {

@@ -20,6 +20,7 @@ export const etiquetas = pgTable('etiquetas', {
   gordurasSaturadas: text('gorduras_saturadas').notNull(),
   sodio: text('sodio').notNull(),
   fibras: text('fibras').notNull(),
+  // O $type é importante aqui, ele diz ao Drizzle que este JSON é um array de NutrienteAdicional
   nutrientesAdicionais: json('nutrientes_adicionais').$type<NutrienteAdicional[]>(),
   dataCriacao: timestamp('data_criacao').defaultNow().notNull()
 });
@@ -32,11 +33,28 @@ export type NutrienteAdicional = {
   unidade: string;
 };
 
-// Schemas para inserção e seleção
-export const etiquetaInsertSchema = createInsertSchema(etiquetas);
+// **NOVA DEFINIÇÃO DO SCHEMA ZOD PARA NutrienteAdicional**
+export const nutrienteAdicionalSchema = z.object({
+  id: z.number().optional(),
+  nome: z.string().min(1, "O nome do nutriente é obrigatório"),
+  valor: z.number().min(0, "O valor do nutriente deve ser um número não negativo"),
+  unidade: z.string().min(1, "A unidade do nutriente é obrigatória"),
+});
+
+
+// Schemas para inserção e seleção (Drizzle-Zod inferirá os tipos corretamente agora)
+export const etiquetaInsertSchema = createInsertSchema(etiquetas, {
+  // Sobrescrever a validação de `nutrientesAdicionais` do Drizzle-Zod
+  // para usar o schema Zod definido manualmente.
+  nutrientesAdicionais: z.array(nutrienteAdicionalSchema).optional().nullable(),
+  dataCriacao: z.date().optional() // para permitir que a data de criação seja opcional na inserção
+});
+
 export const etiquetaSelectSchema = createSelectSchema(etiquetas);
 
 // Schema personalizado para validação com coerção de tipos
+// Sugestão: A menos que haja um motivo forte, alinhe este schema com o etiquetaInsertSchema ou selectSchema
+// Se você realmente precisa de um schema de validação separado, use-o com cuidado.
 export const etiquetaValidationSchema = z.object({
   id: z.number().optional(),
   nome: z.string().min(3, "O nome deve ter pelo menos 3 caracteres"),
@@ -54,7 +72,8 @@ export const etiquetaValidationSchema = z.object({
   gordurasSaturadas: z.string().min(1, "Informe as gorduras saturadas"),
   sodio: z.string().min(1, "Informe o sódio"),
   fibras: z.string().min(1, "Informe as fibras"),
-  nutrientesAdicionais: z.any().optional(),
+  // **CORREÇÃO AQUI:** Definir como um array de nutrienteAdicionalSchema
+  nutrientesAdicionais: z.array(nutrienteAdicionalSchema).optional().nullable(), // Aceita array de NutrienteAdicional ou null/undefined
   dataCriacao: z.date().optional()
 });
 

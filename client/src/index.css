@@ -1,16 +1,9 @@
+/* client/src/index.css */
+
 /* Carregamos fontes do Google como alternativa mais confiável */
 @import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Usamos fonte fallback quando a BADHORSE falhar */
-.font-badhorse {
-  font-family: 'Abril Fatface', cursive, serif;
-  letter-spacing: 1px;
-}
-
+/* Mantenha o bloco @layer base para ANTES das diretivas @tailwind */
 @layer base {
   :root {
     --background: 45 100% 98%;
@@ -37,7 +30,7 @@
     --destructive: 0 100% 50%;
     --destructive-foreground: 0 0% 100%;
     
-    --border: 20 15% 90%;
+    --border: 20 15% 90%; 
     --input: 20 15% 90%;
     --ring: 40 100% 65%;
 
@@ -58,17 +51,22 @@
     
     --radius: 0.5rem;
   }
- 
-  * {
-    @apply border-border;
-  }
   
+  /* Se você usa uma fonte globalmente, mantenha-a aqui */
+  /* Movemos a fonte para cá, para ser parte das definições base */
   body {
-    font-family: 'BADHORSE', sans-serif;
-    @apply antialiased bg-[#FFFDF5] text-foreground;
+    font-family: 'BADHORSE', sans-serif; 
   }
 
+  /* Sua classe .font-badhorse pode ficar aqui, se ela é customizada */
+  .font-badhorse {
+    font-family: 'Abril Fatface', cursive, serif;
+    letter-spacing: 1px;
+  }
+
+  /* Seu código de impressão (print media queries) permanece aqui */
   @media print {
+    /* ... (todo o seu código de impressão) ... */
     /* Configuração de página para impressão exata */
     @page {
       size: auto;
@@ -163,7 +161,7 @@
       font-size: 90% !important;
       box-sizing: border-box !important;
       border: none !important;
-      padding: 3mm !important;
+      padding: 3mm !
     }
     
     .tamanho-80mm-mini .tabela-nutricional {
@@ -253,6 +251,13 @@
   }
 }
 
+/* IMPORTANTE: As diretivas @tailwind SEMPRE vêm DEPOIS de qualquer @layer base
+   e antes de qualquer @layer components ou @layer utilities personalizado. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* O @layer components deve vir DEPOIS das diretivas @tailwind se ele usa classes que dependem delas */
 @layer components {
   .bg-pattern {
     background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23f9d77e' fill-opacity='0.15' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E");

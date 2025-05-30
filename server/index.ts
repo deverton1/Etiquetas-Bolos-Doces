@@ -1,14 +1,18 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url"; // ADICIONADO: Para converter import.meta.url em caminho de arquivo
 
 const app = express();
 
+// Função de log simples para substituir 'log' de server/vite.ts
+const simpleLog = (message: string) => {
+  console.log(`[SERVER] ${message}`);
+};
+
 // Configuração CORS simplificada
 const corsOptions = {
-  // Em produção, use a variável de ambiente CORS_ORIGIN
-  // Em desenvolvimento, aceite qualquer origem
   origin: process.env.CORS_ORIGIN || true,
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
@@ -18,7 +22,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Resposta rápida para OPTIONS
 app.options('*', cors(corsOptions));
 
 app.use(express.json());
@@ -26,7 +29,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use((req, res, next) => {
   const start = Date.now();
-  const path = req.path;
+  const reqPath = req.path; // Renomeado para evitar conflito com 'path' do módulo
   let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
   const originalResJson = res.json;
@@ -37,8 +40,8 @@ app.use((req, res, next) => {
 
   res.on("finish", () => {
     const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
+    if (reqPath.startsWith("/api")) { // Usando reqPath
+      let logLine = `${req.method} ${reqPath} ${res.statusCode} in ${duration}ms`;
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
@@ -47,12 +50,16 @@ app.use((req, res, next) => {
         logLine = logLine.slice(0, 79) + "…";
       }
 
-      log(logLine);
+      simpleLog(logLine);
     }
   });
 
   next();
 });
+
+// Define __dirname para ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 (async () => {
   const server = await registerRoutes(app);
@@ -65,27 +72,26 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
+  if (process.env.NODE_ENV === "production") {
+    const clientDistPath = path.resolve(__dirname, '../client/dist');
+    app.use(express.static(clientDistPath));
+
+    app.get('*', (req, res) => {
+      res.sendFile(path.resolve(clientDistPath, 'index.html'));
+    });
   } else {
-    serveStatic(app);
+    simpleLog('Modo de desenvolvimento: O frontend é servido pelo Vite dev server.');
   }
 
-  // ALWAYS serve the app on port 5000
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
   const port = 5000;
+  // REMOVEMOS reusePort: true para simplicidade e compatibilidade local
   server.listen(
     {
       port,
-      host: "0.0.0.0",
-      reusePort: true,
+      host: "0.0.0.0", // Manter 0.0.0.0 para que possa ser acessado de outras máquinas na rede, ou use 'localhost'
     },
     () => {
-      log(`serving on port ${port}`);
+      simpleLog(`serving on port ${port}`);
     },
   );
 })();
