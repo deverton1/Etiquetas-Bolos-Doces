@@ -1,7 +1,7 @@
 // C:\Users\evert\Desktop\EtiquetaDoceira\drizzle.config.js (NOVO CONTEÚDO EM COMMONJS)
 
 // Mude de import para require para carregar dotenv
-require('dotenv').config(); // Usar .config() explicitamente de dotenv
+// require('dotenv').config(); // Usar .config() explicitamente de dotenv
 
 // Mude de import para require para drizzle-kit
 const { defineConfig } = require("drizzle-kit");
