@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"; // ADICIONADO useQueryClient
 
 // Define types
 interface User {
@@ -18,7 +18,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   error: string | null;
-  login: (credentials: LoginCredentials) => Promise<void>;
+  login: (credentials: LoginCredentials) => Promise<User | undefined>; // Retorna User ou undefined
   logout: () => Promise<void>;
 }
 
@@ -28,22 +28,23 @@ const AuthContext = createContext<AuthContextType | null>(null);
 // Auth provider component
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
-  
-  // Sempre usamos caminhos relativos para evitar problemas de CORS
-  const apiUrl = '';
+  const queryClient = useQueryClient(); // INSTANCIA O QUERY CLIENT
+
+  // apiUrl continua vazia para usar o proxy do Vite
+  const apiUrl = ''; 
 
   // Auth status query
   const { 
     data: authData, 
     isLoading: authLoading,
-    refetch: refetchAuth 
+    refetch: refetchAuth // refetchAuth é usado após login/logout
   } = useQuery({
     queryKey: ['authStatus'],
     queryFn: async () => {
       try {
         const res = await fetch(`${apiUrl}/api/auth/status`, {
           credentials: 'include',
-          mode: 'cors',
+          mode: 'cors', // Modo cors é geralmente padrão e não estritamente necessário aqui
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json',
@@ -62,68 +63,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     },
     retry: false,
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false // Evita refetch desnecessário ao focar
   });
 
-  // Login mutation
+  // Login mutation - CORRIGIDO PARA SER A ÚNICA LÓGICA DE LOGIN
   const { mutateAsync: loginMutate, isPending: loginLoading } = useMutation({
     mutationFn: async (credentials: LoginCredentials) => {
-      try {
-        const response = await fetch(`${apiUrl}/api/login`, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify(credentials),
-          credentials: 'include',
-          mode: 'cors'
-        });
-        
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({ message: 'Erro na rede' }));
-          throw new Error(errorData.message || 'Falha no login');
-        }
-        
-        return response.json();
-      } catch (error) {
-        console.error('Login error:', error);
-        throw error;
-      }
-    }
-  });
-
-  // Logout mutation
-  const { mutateAsync: logoutMutate, isPending: logoutLoading } = useMutation({
-    mutationFn: async () => {
-      try {
-        const response = await fetch(`${apiUrl}/api/logout`, {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          mode: 'cors'
-        });
-        
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({ message: 'Erro na rede' }));
-          throw new Error(errorData.message || 'Falha no logout');
-        }
-        
-        return response.json();
-      } catch (error) {
-        console.error('Logout error:', error);
-        throw error;
-      }
-    }
-  });
-
-  // Login function com melhor tratamento de erros
-  const login = async (credentials: LoginCredentials) => {
-    try {
-      // Tentativa direta de login usando fetch para mais controle
       const response = await fetch(`${apiUrl}/api/login`, {
         method: 'POST',
         headers: { 
@@ -131,53 +76,71 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           'Accept': 'application/json'
         },
         body: JSON.stringify(credentials),
-        credentials: 'include'
+        credentials: 'include',
+        mode: 'cors'
       });
       
       if (!response.ok) {
-        // Se a resposta não for ok, tentamos obter a mensagem de erro
-        try {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Falha no login');
-        } catch (jsonError) {
-          // Se não conseguirmos interpretar o JSON, usamos um erro genérico
-          throw new Error(`Erro ${response.status}: Falha na autenticação`);
-        }
+        const errorData = await response.json().catch(() => ({ message: 'Erro na rede' }));
+        throw new Error(errorData.message || `Erro ${response.status}: Falha na autenticação`);
       }
       
-      // Se o login for bem-sucedido, atualizamos o estado
-      await refetchAuth();
+      return response.json();
+    },
+    onSuccess: (data) => {
+      // Após sucesso da mutação, invalida e refetch a query de authStatus
+      // Isso garante que o estado isAuthenticated e user seja atualizado.
+      queryClient.invalidateQueries({ queryKey: ['authStatus'] });
       setError(null);
-    } catch (err) {
+      console.log("Login successful, authStatus query invalidated.");
+    },
+    onError: (err) => {
       console.error('Login error details:', err);
       setError(err instanceof Error ? err.message : 'Erro ao fazer login');
-      throw err;
     }
-  };
+  });
 
-  // Logout function com melhor tratamento de erros
-  const logout = async () => {
-    try {
-      // Tentativa direta de logout usando fetch
+  // Logout mutation - CORRIGIDO PARA SER A ÚNICA LÓGICA DE LOGOUT
+  const { mutateAsync: logoutMutate, isPending: logoutLoading } = useMutation({
+    mutationFn: async () => {
       const response = await fetch(`${apiUrl}/api/logout`, {
         method: 'POST',
         credentials: 'include',
         headers: { 
           'Content-Type': 'application/json',
           'Accept': 'application/json'
-        }
+        },
+        mode: 'cors'
       });
       
-      // Independente da resposta, atualizamos o estado de autenticação
-      await refetchAuth();
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Erro na rede' }));
+        throw new Error(errorData.message || `Erro ${response.status}: Falha no logout`);
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      // Após sucesso da mutação, invalida e refetch a query de authStatus
+      // Isso garante que o estado isAuthenticated e user seja atualizado para deslogado.
+      queryClient.invalidateQueries({ queryKey: ['authStatus'] });
       setError(null);
-    } catch (err) {
+      console.log("Logout successful, authStatus query invalidated.");
+    },
+    onError: (err) => {
       console.error('Logout error details:', err);
-      // Mesmo com erro, tentamos atualizar o estado
-      await refetchAuth();
       setError(err instanceof Error ? err.message : 'Erro ao fazer logout');
-      throw err;
     }
+  });
+
+  // Funções expostas que utilizam as mutações do react-query
+  const login = async (credentials: LoginCredentials) => {
+    // Retornamos o dado da mutação para o componente de login usar se quiser
+    return loginMutate(credentials);
+  };
+
+  const logout = async () => {
+    await logoutMutate();
   };
 
   // Get auth status values
