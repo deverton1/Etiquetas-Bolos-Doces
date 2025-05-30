@@ -1,33 +1,31 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import path from 'path';
-import { fileURLToPath } from 'url';
+// C:\Users\evert\Desktop\EtiquetaDoceira\vite.config.ts (versão limpa da raiz)
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
+import { fileURLToPath } from "url"; // Para usar __dirname em ESM
 
-// Para garantir que __dirname esteja disponível em ES Modules para o Vite
+// Recria __dirname para ESM, pois import.meta.dirname não existe nativamente
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    // REMOVIDO: runtimeErrorOverlay() e o import
+    // REMOVIDO: os imports condicionais do cartographer
+  ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      "@db": path.resolve(__dirname, "db"),
+      "@": path.resolve(__dirname, "client", "src"), // Aponta para o src do cliente
+      "@shared": path.resolve(__dirname, "shared"),
+      // "@assets": path.resolve(__dirname, "attached_assets"), // Manter se você usa esta pasta
     },
   },
-  // ADICIONAR A CONFIGURAÇÃO DE PROXY AQUI
-  server: {
-    // Isso garante que o Vite use 'localhost' por padrão
-    // host: 'localhost', // Se precisar forçar localhost, mas 0.0.0.0 é bom para acesso externo
-    port: 5173, // Confirme a porta do frontend (geralmente 5173)
-    proxy: {
-      '/api': { // Qualquer requisição que comece com /api
-        target: 'http://localhost:5000', // Será redirecionada para o backend na porta 5000
-        changeOrigin: true, // Necessário para mudar o cabeçalho 'Origin'
-        secure: false, // Se o backend não estiver em HTTPS (comum em dev)
-        ws: true, // Habilita proxy para WebSockets se seu backend usar (ex: para autenticação de sessão)
-        // rewrite: (path) => path.replace(/^\/api/, '') // Opcional: Se o backend não tiver /api no início das suas rotas (mas o seu tem)
-      },
-    },
+  // root aponta para a pasta client como a raiz do frontend para o Vite
+  root: path.resolve(__dirname, "client"),
+  build: {
+    outDir: path.resolve(__dirname, "dist/public"), // Onde o frontend buildado será colocado
+    emptyOutDir: true,
   },
 });
