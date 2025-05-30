@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react"; // ADICIONADO useEffect
 import { useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -23,7 +23,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function Login() {
-  const { login, isLoading, error } = useAuth();
+  const { login, isLoading, error, isAuthenticated } = useAuth(); // ADICIONADO isAuthenticated
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   
@@ -36,17 +36,32 @@ export default function Login() {
     },
   });
 
+  // Efeito para redirecionar após autenticação bem-sucedida
+  useEffect(() => {
+    if (isAuthenticated) {
+      // Atraso para garantir que a toast apareça e que React conclua o ciclo de renderização
+      const timer = setTimeout(() => {
+        setLocation("/");
+      }, 500); // 500ms de atraso, ajuste se necessário
+
+      return () => clearTimeout(timer); // Limpa o timer se o componente desmontar
+    }
+  }, [isAuthenticated, setLocation]); // Dependências: isAuthenticated e setLocation
+
   // Submissão do formulário
   const onSubmit = async (data: LoginFormData) => {
     try {
       await login(data);
+      // A toast será exibida aqui
       toast({
         title: "Login realizado com sucesso",
         description: "Bem-vindo de volta!",
       });
-      setLocation("/");
-    } catch (error) {
-      // O erro já é tratado pelo hook useAuth
+      // REMOVIDO setLocation("/"); daqui, agora é no useEffect
+    } catch (err) {
+      // O erro já é tratado pelo hook useAuth e exibido via {error && <Alert ...>}
+      // Console.log aqui apenas para depuração adicional se necessário
+      console.error("Erro na submissão do login:", err);
     }
   };
 
