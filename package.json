@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx server/index.ts",
     "build": "npm run db:push && npm run db:seed && cd client && npm install && npm run build && cd ..",
-    "start": "NODE_ENV=production tsx server/index.ts",
+    "start": "NODE_ENV=production npx tsx server/index.ts",
     "check": "tsc",
     "db:push": "npm exec drizzle-kit push --force --config=./drizzle.config.js --strict false",
     "db:seed": "npx tsx db/seed.ts"
