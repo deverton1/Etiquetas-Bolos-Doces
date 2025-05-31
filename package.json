@@ -5,8 +5,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "tsx server/index.ts",
-    "build": "cd client && npm install && npm run build && cd .. && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outfile=client/dist/server-bundle.js",
-    "start": "NODE_ENV=production node client/dist/server-bundle.js",
+    "build": "npm run db:push && npm run db:seed && cd client && npm install && npm run build && cd ..",
+    "start": "NODE_ENV=production tsx server/index.ts",
     "check": "tsc",
     "db:push": "npm exec drizzle-kit push --force --config=./drizzle.config.js --strict false",
     "db:seed": "npx tsx db/seed.ts"
@@ -97,7 +97,6 @@
     "autoprefixer": "^10.4.20",
     "cross-env": "^7.0.3",
     "drizzle-kit": "^0.27.1",
-    "esbuild": "^0.24.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.14",
     "tsx": "^4.19.1",
