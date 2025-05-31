@@ -50,18 +50,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   console.log('BACKEND ROUTE LOG: sessionStore configured (C).'); // LOG C - NOVO
 
   app.use(session({
-    secret: process.env.SESSION_SECRET || 'DOCES_MARA_SEGREDO_DEV_LOCAL_MUITO_SEGURO', // Use uma variável de ambiente forte em produção!
-    resave: false,
-    saveUninitialized: false,
-    store: sessionStore, // Ativar o store condicionalmente
-    proxy: process.env.NODE_ENV === 'production', // Mantenha isso, crucial para Render
-    cookie: {
-      secure: process.env.NODE_ENV === 'production' ? true : false, // <--- MUDAR PARA ISSO
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', 
+  // CORREÇÃO AQUI: Fornecer um fallback string para satisfazer o TypeScript
+  secret: process.env.SESSION_SECRET || 'uma_chave_secreta_segura_para_dev_local_e_fallback', // <--- CORRIGIDO AQUI
+  resave: false,
+  saveUninitialized: false,
+  store: sessionStore, // Continua usando MemoryStore para teste
+  proxy: true,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production' ? true : false,
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000, // 24 horas 
-    },
-  }));
+    maxAge: 24 * 60 * 60 * 1000 
+  },
+}));
   console.log('BACKEND ROUTE LOG: session middleware applied (D).'); // LOG D - NOVO
 
   // API prefix
