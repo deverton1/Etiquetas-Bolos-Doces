@@ -52,10 +52,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     store: sessionStore, // Ativar o store condicionalmente
     proxy: process.env.NODE_ENV === 'production', // Mantenha isso, crucial para Render
     cookie: {
-      secure: process.env.NODE_ENV === 'production', 
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // <--- CORREÇÃO AQUI
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000 
+      secure: process.env.NODE_ENV === 'production' ? true : false, // <--- MUDAR PARA ISSO
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', 
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000, // 24 horas 
     },
   }));
   console.log('BACKEND ROUTE LOG: session middleware applied (D).'); // LOG D - NOVO
