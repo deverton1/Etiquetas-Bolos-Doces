@@ -50,8 +50,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   console.log('BACKEND ROUTE LOG: sessionStore configured (C).'); // LOG C - NOVO
 
   app.use(session({
-  // CORREÇÃO AQUI: Fornecer um fallback string para satisfazer o TypeScript
-  secret: process.env.SESSION_SECRET || 'uma_chave_secreta_segura_para_dev_local_e_fallback', // <--- CORRIGIDO AQUI
+  // CORREÇÃO AQUI: Garante que o secret é uma string para TypeScript
+  // Usa a variável de ambiente, ou um fallback robusto.
+  // A asserção 'as string' força o TypeScript a aceitar que o resultado é uma string.
+  secret: (process.env.SESSION_SECRET || 'uma_chave_secreta_segura_para_dev_local_e_fallback') as string, // <--- CORRIGIDO AQUI
   resave: false,
   saveUninitialized: false,
   store: sessionStore, // Continua usando MemoryStore para teste
@@ -62,7 +64,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000 
   },
-}));
+  }));
   console.log('BACKEND ROUTE LOG: session middleware applied (D).'); // LOG D - NOVO
 
   // API prefix
