@@ -20,6 +20,9 @@ const corsOptions = {
   optionsSuccessStatus: 200
 };
 
+simpleLog(`CORS_ORIGIN_ENV (raw): ${process.env.CORS_ORIGIN}`);
+simpleLog(`CORS Options Origin (resolved): ${corsOptions.origin}`);
+
 app.use(cors(corsOptions));
 
 app.options('*', cors(corsOptions));
