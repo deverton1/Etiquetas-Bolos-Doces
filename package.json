@@ -9,7 +9,9 @@
     "start": "NODE_ENV=production npx tsx server/index.ts",
     "check": "tsc",
     "db:push": "npm exec drizzle-kit push --force --config=./drizzle.config.js --strict false",
-    "db:seed": "npx tsx db/seed.ts"
+    "db:seed": "npx tsx db/seed.ts",
+    "build-server-bundle": "esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outfile=server-build/index.js",
+    "build-client-assets": "mkdir -p server-build/public && cp -r client/dist/* server-build/public/"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
