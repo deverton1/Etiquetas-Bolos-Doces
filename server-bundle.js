@@ -124,18 +124,24 @@ pool.connect().then((client) => {
 });
 
 // server/routes.ts
+import { eq } from "drizzle-orm";
+import { z as z2 } from "zod";
+import { fromZodError } from "zod-validation-error";
+import bcrypt from "bcryptjs";
 import session from "express-session";
 import pgSession from "connect-pg-simple";
 async function registerRoutes(app2) {
+  console.log("BACKEND ROUTE LOG: registerRoutes initiated (A).");
   const PgStore = pgSession(session);
+  console.log("BACKEND ROUTE LOG: PgStore instantiated (B).");
   const sessionStore = process.env.NODE_ENV === "production" && process.env.DATABASE_URL ? new PgStore({
     pool,
     // Usar o 'pool' importado diretamente
     tableName: "session",
     createTableIfMissing: true
-    // Nome da tabela para armazenar sessões
-    // Considere adicionar `createTableIfMissing: true` se a tabela não for criada pelo db:push.
+    // Vamos manter isso para garantir que a tabela seja criada
   }) : void 0;
+  console.log("BACKEND ROUTE LOG: sessionStore configured (C).");
   app2.use(session({
     secret: process.env.SESSION_SECRET || "DOCES_MARA_SEGREDO_DEV_LOCAL_MUITO_SEGURO",
     // Use uma variável de ambiente forte em produção!
@@ -147,35 +153,84 @@ async function registerRoutes(app2) {
     // Mantenha isso, crucial para Render
     cookie: {
       secure: process.env.NODE_ENV === "production",
-      // Essencial: 'true' em produção (HTTPS)
-      // CORREÇÃO: Tentar 'none' para sameSite em produção para compatibilidade cross-subdomain
-      // Se 'none' for usado, 'secure: true' é OBRIGATÓRIO (já está garantido em prod).
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       // <--- CORREÇÃO AQUI
       httpOnly: true,
-      // Boa prática de segurança para cookies
       maxAge: 24 * 60 * 60 * 1e3
-      // 24 horas
     }
   }));
+  console.log("BACKEND ROUTE LOG: session middleware applied (D).");
   const apiPrefix = "/api";
   app2.post(`${apiPrefix}/login`, async (req, res) => {
+    try {
+      const dadosLogin = loginSchema.parse(req.body);
+      const usuario = await db.query.users.findFirst({
+        where: eq(users.email, dadosLogin.email)
+      });
+      if (!usuario) {
+        return res.status(401).json({ message: "Credenciais inv\xE1lidas" });
+      }
+      const senhaCorreta = await bcrypt.compare(dadosLogin.password, usuario.password);
+      if (!senhaCorreta) {
+        return res.status(401).json({ message: "Credenciais inv\xE1lidas" });
+      }
+      req.session.user = {
+        id: usuario.id,
+        email: usuario.email,
+        isAdmin: usuario.isAdmin
+      };
+      return res.json({
+        message: "Login realizado com sucesso",
+        user: {
+          id: usuario.id,
+          email: usuario.email,
+          isAdmin: usuario.isAdmin
+        }
+      });
+    } catch (error) {
+      if (error instanceof z2.ZodError) {
+        const validationError = fromZodError(error);
+        return res.status(400).json({
+          message: "Erro de valida\xE7\xE3o",
+          errors: validationError.message
+        });
+      }
+      console.error("Erro ao fazer login:", error);
+      return res.status(500).json({
+        message: "Erro ao fazer login",
+        error: process.env.NODE_ENV === "production" ? "Erro interno" : String(error)
+      });
+    }
   });
   app2.get(`${apiPrefix}/auth/status`, (req, res) => {
+    console.log("BACKEND ROUTE LOG: Inside GET /api/auth/status handler (E).");
+    try {
+      const userInSession = req.session.user;
+      console.log("BACKEND ROUTE LOG: req.session.user accessed (F). User:", userInSession?.email);
+      if (userInSession) {
+        console.log("BACKEND ROUTE LOG: User found in session (G).");
+        return res.json({
+          authenticated: true,
+          user: userInSession
+        });
+      }
+      console.log("BACKEND ROUTE LOG: No user in session, sending unauthenticated (H).");
+      return res.json({ authenticated: false });
+    } catch (err) {
+      console.error("BACKEND ROUTE ERROR: Error accessing session in /auth/status:", err);
+      return res.status(500).json({ message: "Internal server error during session access." });
+    }
   });
-  app2.post(`${apiPrefix}/logout`, (req, res) => {
-  });
-  app2.get(`${apiPrefix}/etiquetas`, async (_req, res) => {
-  });
-  app2.get(`${apiPrefix}/etiquetas/:id`, async (req, res) => {
-  });
-  app2.post(`${apiPrefix}/etiquetas`, async (req, res) => {
-  });
-  app2.patch(`${apiPrefix}/etiquetas/:id`, async (req, res) => {
-  });
-  app2.delete(`${apiPrefix}/etiquetas/:id`, async (req, res) => {
+  app2.post(`${apiPrefix}/logout`, async (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ message: "Erro ao fazer logout" });
+      }
+      return res.json({ message: "Logout realizado com sucesso" });
+    });
   });
   const httpServer = createServer(app2);
+  console.log("BACKEND ROUTE LOG: httpServer created (I).");
   return httpServer;
 }
 
@@ -187,9 +242,13 @@ var app = express();
 var simpleLog = (message) => {
   console.log(`[SERVER] ${message}`);
 };
+app.use((req, res, next) => {
+  console.log(`BACKEND DEBUG: Request received: ${req.method} ${req.originalUrl}`);
+  next();
+});
 var corsOptions = {
-  // CORREÇÃO AQUI: Voltar para usar a variável de ambiente
   origin: process.env.CORS_ORIGIN || true,
+  // Usa a variável de ambiente ou permite tudo em dev
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
