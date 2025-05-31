@@ -1,39 +1,30 @@
-// C:\Users\evert\Desktop\EtiquetaDoceira\db\index.ts
+// C:\Users\evert\Desktop\Etiqueta-Bolos-Doces-Backend\db\index.ts
 
-import { Pool } from 'pg'; // Importa o Pool do pacote 'pg'
-import { drizzle } from 'drizzle-orm/node-postgres'; // Altera para o driver do Drizzle para node-postgres
-import * as schema from "../shared/schema"; // Mantém a importação do seu schema
-import 'dotenv/config'; // Carrega as variáveis de ambiente
+import { Pool } from 'pg'; // <--- Usando o Pool do 'pg'
+import { drizzle } from 'drizzle-orm/node-postgres'; // <--- Driver do Drizzle para node-postgres
+import * as schema from "../shared/schema";
+import 'dotenv/config'; 
 
 if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
-  );
+  throw new Error("DATABASE_URL must be set. Did you forget to provision a database?");
 }
 
-// Configuração para usar SSL/TLS em produção
-export const pool = new Pool({
+// Configuração para usar SSL/TLS em produção para o Pool do pg
+export const pool = new Pool({ // <--- Cria o Pool do 'pg'
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-  // 'rejectUnauthorized: false' é frequentemente usado em ambientes de desenvolvimento ou para provedores
-  // que usam certificados autoassinados. Em produção real com certificados válidos,
-  // você pode querer remover 'rejectUnauthorized: false' ou configurá-lo para 'true'
-  // se você tiver o certificado CA do seu provedor de DB.
-  // No Render, 'rejectUnauthorized: false' geralmente funciona bem com muitos provedores de DB.
 });
 
-// Inicializa o Drizzle com o cliente Pool do pg
-export const db = drizzle(pool, { schema });
+export const db = drizzle(pool, { schema }); // Drizzle com o Pool do 'pg'
 
-// Opcional: Adicionar um listener para verificar a conexão
+// Listeners para o Pool do pg
 pool.on('error', (err) => {
   console.error('Erro inesperado no pool do banco de dados:', err);
-  process.exit(-1); // Encerrar a aplicação em caso de erro grave de conexão
+  process.exit(-1);
 });
 
-// Opcional: Adicionar um log para confirmar a conexão (pode ser útil no desenvolvimento)
-pool.connect()
-  .then(client => {
+pool.connect() // <--- Método connect() do Pool do pg
+  .then(client => { // client é um cliente obtido do pool
     console.log('Conexão com o banco de dados estabelecida com sucesso!');
     client.release(); // Libera o cliente de volta para o pool
   })
