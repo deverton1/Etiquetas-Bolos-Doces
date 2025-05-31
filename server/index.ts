@@ -68,18 +68,17 @@ const __dirname = path.dirname(__filename);
   const server = await registerRoutes(app);
 
   // ...
+  app.get('/', (req, res) => {
+    res.json({ message: 'Backend API is running. Access /api routes.' });
+  });
 
-  if (process.env.NODE_ENV === "production") {
-    // CORREÇÃO AQUI: O caminho para os arquivos estáticos agora inclui a pasta 'dist' interna
-    const clientDistPath = path.resolve(__dirname, '../public_html'); // <--- CORRIGIDO
-    app.use(express.static(clientDistPath));
-
-    app.get('*', (req, res) => {
-      res.sendFile(path.resolve(clientDistPath, 'index.html'));
-    });
-  } else {
-    simpleLog('Modo de desenvolvimento: O frontend é servido pelo Vite dev server.');
-  }
+  app.use((req, res, next) => {
+    if (!req.path.startsWith('/api')) { // Se a rota não for da API
+      res.status(404).json({ message: 'Not Found' });
+    } else {
+      next(); // Deixe as rotas de API serem tratadas pelo registerRoutes
+    }
+  });
 
   const port = 5000;
   // REMOVEMOS reusePort: true para simplicidade e compatibilidade local
