@@ -67,7 +67,13 @@ const __dirname = path.dirname(__filename);
 (async () => {
   const server = await registerRoutes(app);
 
-  // ...
+  // Configuração CORS
+  const corsOptions = {
+    origin: process.env.CORS_ORIGIN || true,
+    credentials: true,
+  };
+  app.use(cors(corsOptions));
+
   app.get('/', (req, res) => {
     res.json({ message: 'Backend API is running. Access /api routes.' });
   });
