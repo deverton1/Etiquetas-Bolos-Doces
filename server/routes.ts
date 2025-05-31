@@ -34,9 +34,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const PgStore = pgSession(session);
   console.log('BACKEND ROUTE LOG: PgStore instantiated (B).'); // LOG B - NOVO
 
-  const sessionStore = undefined; 
-  // Comente o bloco abaixo para que o 'sessionStore' permaneça 'undefined'
-  /*
   const sessionStore = 
     process.env.NODE_ENV === 'production' && process.env.DATABASE_URL
       ? new PgStore({
@@ -45,7 +42,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           createTableIfMissing: true 
         })
       : undefined;
-  */
 
   console.log('BACKEND ROUTE LOG: sessionStore configured (C).'); // LOG C - NOVO
 
