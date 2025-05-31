@@ -71,7 +71,7 @@ const __dirname = path.dirname(__filename);
 
   if (process.env.NODE_ENV === "production") {
     // CORREÇÃO AQUI: O caminho para os arquivos estáticos agora inclui a pasta 'dist' interna
-    const clientDistPath = path.resolve(__dirname, '../server-build/public/dist'); // <--- CORRIGIDO
+    const clientDistPath = path.resolve(__dirname, '../public_html'); // <--- CORRIGIDO
     app.use(express.static(clientDistPath));
 
     app.get('*', (req, res) => {
