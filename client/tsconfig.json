@@ -1,4 +1,3 @@
-// C:\Users\evert\Desktop\EtiquetaDoceira\client\tsconfig.json (CÓDIGO CORRIGIDO)
 {
   // Apenas inclui os arquivos do frontend, pois este tsconfig é para o cliente
   "include": ["src/**/*", "vite-env.d.ts", "**/*.ts", "**/*.tsx"], // 'src' dentro de client/

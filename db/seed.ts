@@ -1,7 +1,10 @@
+// C:\Users\evert\Desktop\EtiquetaDoceira\db\seed.ts
+
 import { db } from "./index";
-import * as schema from "@shared/schema";
+// Correção 1: Mudar importação de schema para caminho relativo
+import * as schema from "../shared/schema"; // <-- CORRIGIDO
 import bcrypt from "bcryptjs";
-import { eq } from "drizzle-orm";
+import { eq } from "drizzle-orm"; // Esta importação está correta aqui
 
 async function seed() {
   try {
