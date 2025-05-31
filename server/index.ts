@@ -11,7 +11,7 @@ const simpleLog = (message: string) => {
   console.log(`[SERVER] ${message}`);
 };
 
-// Configuração CORS simplificada
+// Configuração CORS COMPLETA E ÚNICA
 const corsOptions = {
   origin: process.env.CORS_ORIGIN || true,
   credentials: true,
@@ -20,11 +20,14 @@ const corsOptions = {
   optionsSuccessStatus: 200
 };
 
+// LOGS PARA DEPURAR CORS (Mantenha para verificar no Render)
 simpleLog(`CORS_ORIGIN_ENV (raw): ${process.env.CORS_ORIGIN}`);
 simpleLog(`CORS Options Origin (resolved): ${corsOptions.origin}`);
 
+// APLICAÇÃO ÚNICA DO MIDDLEWARE CORS
 app.use(cors(corsOptions));
 
+// Resposta rápida para OPTIONS (Preflight requests)
 app.options('*', cors(corsOptions));
 
 app.use(express.json());
@@ -67,17 +70,20 @@ const __dirname = path.dirname(__filename);
 (async () => {
   const server = await registerRoutes(app);
 
-  // Configuração CORS
-  const corsOptions = {
-    origin: process.env.CORS_ORIGIN || true,
-    credentials: true,
-  };
-  app.use(cors(corsOptions));
+  // --- REMOVIDO: BLOCO CORS DUPLICADO AQUI ---
+  // const corsOptions = {
+  //   origin: process.env.CORS_ORIGIN || true,
+  //   credentials: true,
+  // };
+  // app.use(cors(corsOptions));
+  // ------------------------------------------
 
+  // Rota para a raiz do backend (apenas para testar que a API está viva)
   app.get('/', (req, res) => {
     res.json({ message: 'Backend API is running. Access /api routes.' });
   });
 
+  // Middleware para 404: Se nenhuma rota de API corresponder, retorne 404 JSON
   app.use((req, res, next) => {
     if (!req.path.startsWith('/api')) { // Se a rota não for da API
       res.status(404).json({ message: 'Not Found' });
@@ -87,11 +93,10 @@ const __dirname = path.dirname(__filename);
   });
 
   const port = 5000;
-  // REMOVEMOS reusePort: true para simplicidade e compatibilidade local
   server.listen(
     {
       port,
-      host: "0.0.0.0", // Manter 0.0.0.0 para que possa ser acessado de outras máquinas na rede, ou use 'localhost'
+      host: "0.0.0.0",
     },
     () => {
       simpleLog(`serving on port ${port}`);
