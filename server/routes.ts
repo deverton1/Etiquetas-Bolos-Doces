@@ -35,28 +35,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const sessionStore = 
     process.env.NODE_ENV === 'production' && process.env.DATABASE_URL
       ? new PgStore({
-          pool: pool, // <--- Correção 2: Usar o 'pool' importado diretamente
+          pool: pool, // Usar o 'pool' importado diretamente
           tableName: 'session' // Nome da tabela para armazenar sessões
-          // Se sua tabela 'session' não for criada automaticamente pelo db:push,
-          // considere adicionar `createTableIfMissing: true` aqui, mas isso é mais para dev.
+          // Considere adicionar `createTableIfMissing: true` se a tabela não for criada pelo db:push.
         })
       : undefined; // Em desenvolvimento local, se DATABASE_URL não estiver setada, usa MemoryStore
 
   app.use(session({
-    // Correção 3: Use uma variável de ambiente forte em produção!
-    secret: process.env.SESSION_SECRET || 'DOCES_MARA_SEGREDO_DEV_LOCAL_MUITO_SEGURO', 
+    secret: process.env.SESSION_SECRET || 'DOCES_MARA_SEGREDO_DEV_LOCAL_MUITO_SEGURO', // Use uma variável de ambiente forte em produção!
     resave: false,
     saveUninitialized: false,
-    store: sessionStore, // <--- Correção 4: Ativar o store condicionalmente
+    store: sessionStore, // Ativar o store condicionalmente
+    proxy: process.env.NODE_ENV === 'production', // Mantenha isso, crucial para Render
     cookie: {
-      secure: process.env.NODE_ENV === 'production', 
-      sameSite: 'lax', // Ótimo para o mesmo domínio
-      // Se 'lax' não funcionar no deploy, tente 'none' (requer HTTPS)
-      // sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Exemplo
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000 
+      secure: process.env.NODE_ENV === 'production', // Essencial: 'true' em produção (HTTPS)
+      // CORREÇÃO: Tentar 'none' para sameSite em produção para compatibilidade cross-subdomain
+      // Se 'none' for usado, 'secure: true' é OBRIGATÓRIO (já está garantido em prod).
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // <--- CORREÇÃO AQUI
+      httpOnly: true, // Boa prática de segurança para cookies
+      maxAge: 24 * 60 * 60 * 1000 // 24 horas
     },
-    proxy: process.env.NODE_ENV === 'production', // <--- Mantenha isso, crucial para Render
   }));
 
   // API prefix
