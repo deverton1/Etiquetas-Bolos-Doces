@@ -2,7 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import cors from "cors";
 import path from "path";
-import { fileURLToPath } from "url";
+import { fileURLToPath } from "url"; // ADICIONADO: Para converter import.meta.url em caminho de arquivo
 
 const app = express();
 
@@ -11,10 +11,15 @@ const simpleLog = (message: string) => {
   console.log(`[SERVER] ${message}`);
 };
 
-// Configuração CORS COMPLETA E ÚNICA
+// Middleware de depuração para registrar todas as requisições (removido log agressivo)
+app.use((req, res, next) => {
+  console.log(`BACKEND DEBUG: Request received: ${req.method} ${req.originalUrl}`); // LOG MUITO AGRESSIVO
+  next();
+});
+
+// Configuração CORS COMPLETA E ÚNICA (no local correto)
 const corsOptions = {
-  // CORREÇÃO AQUI: Voltar para usar a variável de ambiente
-  origin: process.env.CORS_ORIGIN || true, 
+  origin: process.env.CORS_ORIGIN || true, // Usa a variável de ambiente ou permite tudo em dev
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
@@ -25,20 +30,21 @@ const corsOptions = {
 simpleLog(`CORS_ORIGIN_ENV (raw): ${process.env.CORS_ORIGIN}`);
 simpleLog(`CORS Options Origin (resolved): ${corsOptions.origin}`);
 
-// APLICAÇÃO ÚNICA DO MIDDLEWARE CORS
+// APLICAÇÃO ÚNICA E CORRETA DO MIDDLEWARE CORS
 app.use(cors(corsOptions));
 
-// TRATAR REQUISIÇÕES OPTIONS MANUALMENTE (Mantenha esta correção que fizemos)
+// TRATAR REQUISIÇÕES OPTIONS MANUALMENTE (como um fallback/segurança extra)
+// Isso é o que tínhamos adicionado para garantir o preflight
 app.options('*', (req, res) => {
     simpleLog(`BACKEND DEBUG: Handling OPTIONS preflight for: ${req.originalUrl}`);
-    // CORREÇÃO AQUI: Usar a variável de ambiente para o cabeçalho Allow-Origin
-    res.header('Access-Control-Allow-Origin', process.env.CORS_ORIGIN || '*'); 
+    res.header('Access-Control-Allow-Origin', process.env.CORS_ORIGIN || '*'); // Deve corresponder à origem
     res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,PATCH,OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept');
     res.header('Access-Control-Allow-Credentials', 'true');
     res.sendStatus(200);
 });
 
+// Body parsers (devem vir DEPOIS do middleware CORS)
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
