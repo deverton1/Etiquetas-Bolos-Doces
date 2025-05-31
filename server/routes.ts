@@ -36,7 +36,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     process.env.NODE_ENV === 'production' && process.env.DATABASE_URL
       ? new PgStore({
           pool: pool, // Usar o 'pool' importado diretamente
-          tableName: 'session' // Nome da tabela para armazenar sessões
+          tableName: 'session',
+          createTableIfMissing: true // Nome da tabela para armazenar sessões
           // Considere adicionar `createTableIfMissing: true` se a tabela não for criada pelo db:push.
         })
       : undefined; // Em desenvolvimento local, se DATABASE_URL não estiver setada, usa MemoryStore
