@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename);
 
 // 🚩 CORS correto
 const corsOptions = {
-  origin: 'https://docesmara-frontend.onrender.com',
+  origin: 'https://docesmara.onrender.com',
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
