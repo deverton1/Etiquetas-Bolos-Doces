@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "tsx server/index.ts",
-    "build": "npm run db:push && npm run db:seed && cd client && npm install && npm run build && cd .. && ls -la client/dist/ && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outfile=server-build/index.js && mkdir -p server-build/public && cp -r client/dist/. server-build/public/",
+    "build": "npm run db:push && npm run db:seed && cd client && npm install && npm run build && cd .. && ls -la client/ && ls -la client/dist/ && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outfile=server-build/index.js && rm -rf server-build/public && mkdir -p server-build/public && cp -r client/dist server-build/public/",
     "start": "NODE_ENV=production npx tsx server/index.ts",
     "check": "tsc",
     "db:push": "npm exec drizzle-kit push --force --config=./drizzle.config.js --strict false",
