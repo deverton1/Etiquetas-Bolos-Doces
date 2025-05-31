@@ -34,14 +34,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const PgStore = pgSession(session);
   console.log('BACKEND ROUTE LOG: PgStore instantiated (B).'); // LOG B - NOVO
 
+  const sessionStore = undefined; 
+  // Comente o bloco abaixo para que o 'sessionStore' permaneça 'undefined'
+  /*
   const sessionStore = 
     process.env.NODE_ENV === 'production' && process.env.DATABASE_URL
       ? new PgStore({
-          pool: pool, // Usar o 'pool' importado diretamente
+          pool: pool, 
           tableName: 'session',
-          createTableIfMissing: true // Vamos manter isso para garantir que a tabela seja criada
+          createTableIfMissing: true 
         })
-      : undefined; // Em desenvolvimento local, se DATABASE_URL não estiver setada, usa MemoryStore
+      : undefined;
+  */
 
   console.log('BACKEND ROUTE LOG: sessionStore configured (C).'); // LOG C - NOVO
 
