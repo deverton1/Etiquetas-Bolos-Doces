@@ -28,7 +28,14 @@ simpleLog(`CORS Options Origin (resolved): ${corsOptions.origin}`);
 app.use(cors(corsOptions));
 
 // Resposta rápida para OPTIONS (Preflight requests)
-app.options('*', cors(corsOptions));
+app.options('*', (req, res) => {
+    simpleLog(`BACKEND DEBUG: Handling OPTIONS preflight for: ${req.originalUrl}`); // Log para depuração
+    res.header('Access-Control-Allow-Origin', process.env.CORS_ORIGIN || '*'); // **Muito importante**
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,PATCH,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept');
+    res.header('Access-Control-Allow-Credentials', 'true'); // Se você usa credenciais
+    res.sendStatus(200); // Envia 200 OK para o preflight
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
