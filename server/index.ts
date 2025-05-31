@@ -73,7 +73,11 @@ const __dirname = path.dirname(__filename);
   });
 
   if (process.env.NODE_ENV === "production") {
-    const clientDistPath = path.resolve(__dirname, '../client/dist');
+    // CORREÇÃO AQUI: O caminho para os arquivos estáticos agora está dentro de server-build/public
+    // Já que server-build/index.js estará na raiz do projeto (após o build)
+    // e server/index.ts estará em /opt/render/project/src/server/
+    // precisamos subir um nível para a raiz e ir para server-build/public
+    const clientDistPath = path.resolve(__dirname, '../server-build/public'); // <--- CORRIGIDO
     app.use(express.static(clientDistPath));
 
     app.get('*', (req, res) => {
