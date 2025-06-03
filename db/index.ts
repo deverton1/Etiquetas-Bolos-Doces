@@ -15,6 +15,24 @@ export const pool = new Pool({ // <--- Cria o Pool do 'pg'
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
 });
 
+(async () => {
+  try {
+    await pool.query(`
+      DO $$ 
+      BEGIN
+          ALTER TABLE "etiquetas" ADD COLUMN "dias_validade" integer DEFAULT 5 NOT NULL;
+      EXCEPTION
+          WHEN duplicate_column THEN 
+              RAISE NOTICE 'A coluna "dias_validade" já existe na tabela "etiquetas".';
+      END $$;
+    `);
+    console.log('DB MIGRATION: Coluna "dias_validade" verificada/criada com sucesso!');
+  } catch (err) {
+    console.error('DB MIGRATION ERROR: Falha ao verificar/criar coluna "dias_validade":', err);
+    // Não travar o processo se for erro na migração
+  }
+})();
+
 export const db = drizzle(pool, { schema }); // Drizzle com o Pool do 'pg'
 
 // Listeners para o Pool do pg
