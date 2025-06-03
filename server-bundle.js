@@ -27,7 +27,7 @@ __export(schema_exports, {
   userSelectSchema: () => userSelectSchema,
   users: () => users
 });
-import { pgTable, text, serial, timestamp, json, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, integer, json, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 var etiquetas = pgTable("etiquetas", {
@@ -36,6 +36,7 @@ var etiquetas = pgTable("etiquetas", {
   descricao: text("descricao").notNull(),
   dataFabricacao: text("data_fabricacao").notNull(),
   dataValidade: text("data_validade").notNull(),
+  diasValidade: integer("dias_validade").notNull().default(5),
   porcao: text("porcao").notNull(),
   unidadePorcao: text("unidade_porcao").notNull().default("g"),
   valorEnergetico: text("valor_energetico").notNull(),
@@ -61,8 +62,9 @@ var etiquetaInsertSchema = createInsertSchema(etiquetas, {
   // Sobrescrever a validação de `nutrientesAdicionais` do Drizzle-Zod
   // para usar o schema Zod definido manualmente.
   nutrientesAdicionais: z.array(nutrienteAdicionalSchema).optional().nullable(),
-  dataCriacao: z.date().optional()
+  dataCriacao: z.date().optional(),
   // para permitir que a data de criação seja opcional na inserção
+  diasValidade: z.number().int().min(1, "Dias de validade inv\xE1lidos").default(5)
 });
 var etiquetaSelectSchema = createSelectSchema(etiquetas);
 var etiquetaValidationSchema = z.object({
@@ -71,6 +73,7 @@ var etiquetaValidationSchema = z.object({
   descricao: z.string().min(5, "A descri\xE7\xE3o deve ter pelo menos 5 caracteres"),
   dataFabricacao: z.string().min(1, "Selecione a data de fabrica\xE7\xE3o"),
   dataValidade: z.string().min(1, "Selecione a data de validade"),
+  diasValidade: z.number().int().min(1, "Dias de validade inv\xE1lidos").default(5),
   porcao: z.string().min(1, "Informe a por\xE7\xE3o"),
   unidadePorcao: z.string(),
   valorEnergetico: z.string().min(1, "Informe o valor energ\xE9tico"),
@@ -136,25 +139,24 @@ async function registerRoutes(app2) {
   console.log("BACKEND ROUTE LOG: PgStore instantiated (B).");
   const sessionStore = process.env.NODE_ENV === "production" && process.env.DATABASE_URL ? new PgStore({
     pool,
-    // Usar o 'pool' importado diretamente
     tableName: "session",
     createTableIfMissing: true
-    // Vamos manter isso para garantir que a tabela seja criada
   }) : void 0;
   console.log("BACKEND ROUTE LOG: sessionStore configured (C).");
   app2.use(session({
-    secret: process.env.SESSION_SECRET || "DOCES_MARA_SEGREDO_DEV_LOCAL_MUITO_SEGURO",
-    // Use uma variável de ambiente forte em produção!
+    // CORREÇÃO AQUI: Garante que o secret é uma string para TypeScript
+    // Usa a variável de ambiente, ou um fallback robusto.
+    // A asserção 'as string' força o TypeScript a aceitar que o resultado é uma string.
+    secret: process.env.SESSION_SECRET || "uma_chave_secreta_segura_para_dev_local_e_fallback",
+    // <--- CORRIGIDO AQUI
     resave: false,
     saveUninitialized: false,
     store: sessionStore,
-    // Ativar o store condicionalmente
-    proxy: process.env.NODE_ENV === "production",
-    // Mantenha isso, crucial para Render
+    // Continua usando MemoryStore para teste
+    proxy: true,
     cookie: {
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "production" ? true : false,
       sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      // <--- CORREÇÃO AQUI
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1e3
     }
@@ -228,6 +230,100 @@ async function registerRoutes(app2) {
       }
       return res.json({ message: "Logout realizado com sucesso" });
     });
+  });
+  app2.get(`${apiPrefix}/etiquetas`, async (_req, res) => {
+    try {
+      const todasEtiquetas = await db.query.etiquetas.findMany({
+        orderBy: etiquetas.dataCriacao
+      });
+      return res.json(todasEtiquetas);
+    } catch (error) {
+      console.error("Erro ao buscar etiquetas:", error);
+      return res.status(500).json({ message: "Erro ao buscar etiquetas" });
+    }
+  });
+  app2.get(`${apiPrefix}/etiquetas/:id`, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "ID inv\xE1lido" });
+      }
+      const etiqueta = await db.query.etiquetas.findFirst({
+        where: eq(etiquetas.id, id)
+      });
+      if (!etiqueta) {
+        return res.status(404).json({ message: "Etiqueta n\xE3o encontrada" });
+      }
+      return res.json(etiqueta);
+    } catch (error) {
+      console.error("Erro ao buscar etiqueta:", error);
+      return res.status(500).json({ message: "Erro ao buscar etiqueta" });
+    }
+  });
+  app2.post(`${apiPrefix}/etiquetas`, async (req, res) => {
+    try {
+      const dadosValidados = etiquetaValidationSchema.parse(req.body);
+      const { dataCriacao, ...dadosParaInserir } = dadosValidados;
+      const [novaEtiqueta] = await db.insert(etiquetas).values(dadosParaInserir).returning();
+      return res.status(201).json(novaEtiqueta);
+    } catch (error) {
+      if (error instanceof z2.ZodError) {
+        const validationError = fromZodError(error);
+        return res.status(400).json({
+          message: "Erro de valida\xE7\xE3o",
+          errors: validationError.message
+        });
+      }
+      console.error("Erro ao criar etiqueta:", error);
+      return res.status(500).json({ message: "Erro ao criar etiqueta" });
+    }
+  });
+  app2.patch(`${apiPrefix}/etiquetas/:id`, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "ID inv\xE1lido" });
+      }
+      const etiquetaExistente = await db.query.etiquetas.findFirst({
+        where: eq(etiquetas.id, id)
+      });
+      if (!etiquetaExistente) {
+        return res.status(404).json({ message: "Etiqueta n\xE3o encontrada" });
+      }
+      const dadosValidados = etiquetaValidationSchema.parse(req.body);
+      const { dataCriacao, ...dadosParaAtualizar } = dadosValidados;
+      const [etiquetaAtualizada] = await db.update(etiquetas).set(dadosParaAtualizar).where(eq(etiquetas.id, id)).returning();
+      return res.json(etiquetaAtualizada);
+    } catch (error) {
+      if (error instanceof z2.ZodError) {
+        const validationError = fromZodError(error);
+        return res.status(400).json({
+          message: "Erro de valida\xE7\xE3o",
+          errors: validationError.message
+        });
+      }
+      console.error("Erro ao atualizar etiqueta:", error);
+      return res.status(500).json({ message: "Erro ao atualizar etiqueta" });
+    }
+  });
+  app2.delete(`${apiPrefix}/etiquetas/:id`, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "ID inv\xE1lido" });
+      }
+      const etiquetaExistente = await db.query.etiquetas.findFirst({
+        where: eq(etiquetas.id, id)
+      });
+      if (!etiquetaExistente) {
+        return res.status(404).json({ message: "Etiqueta n\xE3o encontrada" });
+      }
+      await db.delete(etiquetas).where(eq(etiquetas.id, id));
+      return res.json({ message: "Etiqueta exclu\xEDda com sucesso" });
+    } catch (error) {
+      console.error("Erro ao excluir etiqueta:", error);
+      return res.status(500).json({ message: "Erro ao excluir etiqueta" });
+    }
   });
   const httpServer = createServer(app2);
   console.log("BACKEND ROUTE LOG: httpServer created (I).");
