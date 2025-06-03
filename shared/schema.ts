@@ -9,6 +9,7 @@ export const etiquetas = pgTable('etiquetas', {
   descricao: text('descricao').notNull(),
   dataFabricacao: text('data_fabricacao').notNull(),
   dataValidade: text('data_validade').notNull(),
+  diasValidade: integer('dias_validade').notNull().default(5),
   porcao: text('porcao').notNull(),
   unidadePorcao: text('unidade_porcao').notNull().default('g'),
   valorEnergetico: text('valor_energetico').notNull(),
@@ -47,7 +48,8 @@ export const etiquetaInsertSchema = createInsertSchema(etiquetas, {
   // Sobrescrever a validação de `nutrientesAdicionais` do Drizzle-Zod
   // para usar o schema Zod definido manualmente.
   nutrientesAdicionais: z.array(nutrienteAdicionalSchema).optional().nullable(),
-  dataCriacao: z.date().optional() // para permitir que a data de criação seja opcional na inserção
+  dataCriacao: z.date().optional(), // para permitir que a data de criação seja opcional na inserção
+  diasValidade: z.number().int().min(1, "Dias de validade inválidos").default(5)
 });
 
 export const etiquetaSelectSchema = createSelectSchema(etiquetas);
@@ -61,6 +63,7 @@ export const etiquetaValidationSchema = z.object({
   descricao: z.string().min(5, "A descrição deve ter pelo menos 5 caracteres"),
   dataFabricacao: z.string().min(1, "Selecione a data de fabricação"),
   dataValidade: z.string().min(1, "Selecione a data de validade"),
+  diasValidade: z.number().int().min(1, "Dias de validade inválidos").default(5),
   porcao: z.string().min(1, "Informe a porção"),
   unidadePorcao: z.string(),
   valorEnergetico: z.string().min(1, "Informe o valor energético"),
